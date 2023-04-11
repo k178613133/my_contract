@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-
+import "./console.sol";
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
@@ -521,7 +521,53 @@ library SafeERC20 {
         }
     }
 }
-contract challenge{
+
+contract Owner {
+
+    address private owner;
+
+    // event for EVM logging
+    event OwnerSet(address indexed oldOwner, address indexed newOwner);
+
+    // modifier to check if caller is owner
+    modifier isOwner() {
+        // If the first argument of 'require' evaluates to 'false', execution terminates and all
+        // changes to the state and to Ether balances are reverted.
+        // This used to consume all gas in old EVM versions, but not anymore.
+        // It is often a good idea to use 'require' to check if functions are called correctly.
+        // As a second argument, you can also provide an explanation about what went wrong.
+        require(msg.sender == owner, "Caller is not owner");
+        _;
+    }
+
+    /**
+     * @dev Set contract deployer as owner
+     */
+    constructor() {
+        // console.log("Owner contract deployed by:", msg.sender);
+        owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
+        emit OwnerSet(address(0), owner);
+    }
+
+    /**
+     * @dev Change owner
+     * @param newOwner address of new owner
+     */
+    function changeOwner(address newOwner) public isOwner {
+        emit OwnerSet(owner, newOwner);
+        owner = newOwner;
+    }
+
+    /**
+     * @dev Return owner address 
+     * @return address of owner
+     */
+    function getOwner() external view returns (address) {
+        return owner;
+    }
+}
+
+contract challenge is Owner{
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     // ERC20 basic token contract being held
@@ -559,7 +605,7 @@ contract challenge{
     mapping(string => Theme) private _challengeTheme;
     mapping(string => mapping(address =>ChallengerInfo)) private _challengerInfo;
     mapping(address => uint256) private _lastFaucetTime;
-
+    mapping(address =>bool) private _roleAddress;
 
    /**
      * @dev Deploys a timelock instance that is able to hold the token specified, and will only release it to
@@ -570,15 +616,31 @@ contract challenge{
          
     ) {
                         
-        _token = IERC20(0xb8190d84475D09f4324685678A70EF5C2375Ef4b);   
+        //_token = IERC20(0xb8190d84475D09f4324685678A70EF5C2375Ef4b);   
     }
 
- 
+     modifier isToken() {
+        // If the first argument of 'require' evaluates to 'false', execution terminates and all
+        // changes to the state and to Ether balances are reverted.
+        // This used to consume all gas in old EVM versions, but not anymore.
+        // It is often a good idea to use 'require' to check if functions are called correctly.
+        // As a second argument, you can also provide an explanation about what went wrong.
+        require(address(_token) != address(0), "No tokens have been set yet");
+        _;
+    }
 
+    function setToken(address tokenAddress) public {
+        _token = IERC20(tokenAddress);  
+    }
     //查询指定余额数量
-    function tokenBalance() public view virtual returns (uint256) {
+    function tokenBalance() public isToken view virtual returns (uint256)  {
+        console.log("the _token is " ,address(_token));
         uint256 amount = _token.balanceOf(address(this));
         return amount;
+    }
+
+    function getTokenAddress() public view virtual returns (address) {
+        return address(_token);
     }
 
 
@@ -594,29 +656,28 @@ contract challenge{
     }
 
 
-    //发起一个主题
-    function initiationTheme(string  memory  themeId_, uint256    amount_,uint256 endTime,uint256 odds) public    {
-        require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated");
+
+
+        //发起一个主题
+    function initiationTheme(string  memory  themeId_, uint256 amount_) public isToken    {
+        require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated!");
+        require(_challengeTheme[themeId_].originator == address(0),"The themeId Has been initiated!!");
+        require(_challengeTheme[themeId_].odds > 0,"The proposition does not set a probability!");
+        require(_challengeTheme[themeId_].isCompleteTime > 0,"The proposition has no end time set!");
         require(amount_ > 1000000000000000000,"Publisher token amount 1");
-        require(odds >= 2,"The minimum value of magnification is 2");
 
        _token.safeTransferFrom(msg.sender,address(this),amount_);
        _challengeTheme[themeId_].idstr = themeId_;
        _challengeTheme[themeId_].reward = amount_;
        _challengeTheme[themeId_].originator = msg.sender;
-       _challengeTheme[themeId_].isCompleteTime = endTime;
        _challengeTheme[themeId_].challenge = true;
        _challengeTheme[themeId_].isComplete = false;
-       _challengeTheme[themeId_].odds = odds;
 
-       
     }
-    //测试
-    function test(string memory themeId_,uint256 amount_) public view  returns(uint256,uint256){
-       return ( _challengeTheme[themeId_].challengeTotal.add(amount_),_challengeTheme[themeId_].reward.div(2));
-    }
+
+
     //挑战一个主题
-    function challengeTheme(string memory themeId_,uint256 amount_) public  {
+    function challengeTheme(string memory themeId_,uint256 amount_) public isToken  {
         uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
         address  publisherAddress = _challengeTheme[themeId_].originator;//发布者
  
@@ -643,16 +704,23 @@ contract challenge{
         _challengerInfo[themeId_][msg.sender].times += 1;//挑战次数
         _challengerInfo[themeId_][msg.sender].idstr = themeId_;//挑战Id
         _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额   
-
-
-          
-
             
     }
 
  
     //完成挑战，开始结算
-    function CompleteTheChallenge(string memory themeId_,bool result_) public {
+    function CompleteTheChallenge(string memory themeId_,bool result_) public isToken {
+        //console.log("the _challengeTheme[themeId_].originator is " ,_challengeTheme[themeId_].originator);
+
+        require(_roleAddress[msg.sender] ==  true ,"No permission to publish results!");
+        //require(_roleAddress[msg.sender] ==  true ,"No permission to publish results");
+
+        require(_challengeTheme[themeId_].originator !=address(0) ,"The current proposition is not initialized!");
+
+        require(_challengeTheme[themeId_].reward >0 ,"The current proposition is not initialized!!");
+
+
+
         _challengeTheme[themeId_].isComplete = true;
         _challengeTheme[themeId_].result = result_;
         uint256 chanllengeAmount = _challengeTheme[themeId_].challengeTotal;//挑战总数量
@@ -670,7 +738,7 @@ contract challenge{
     }
  
     //用户领取奖励
-    function challengerReceiveRewards(string memory themeId_) public    {        
+    function challengerReceiveRewards(string memory themeId_) public isToken   {        
         uint256 chanllengeAmount = _challengerInfo[themeId_][msg.sender].amount;//挑战数量
         uint256 reward = _challengerInfo[themeId_][msg.sender].reward;//挑战奖励
 
@@ -687,7 +755,7 @@ contract challenge{
     }
 
     //发布者领取奖励
-    function publisherReceiveRewards(string memory themeId_) public    {
+    function publisherReceiveRewards(string memory themeId_) public isToken    {
         address  publisherAddress = _challengeTheme[themeId_].originator;
         require(publisherAddress == msg.sender,"The current user is not a publisher");//不是发布者，不能领取奖励
         require(_challengeTheme[themeId_].isComplete == true,"The challenge is not over");//当前挑战未结束
@@ -699,11 +767,13 @@ contract challenge{
         _challengeTheme[themeId_].hasReceive = true;//记录，已经领取了奖励
     }
 
-    //修改挑战结束时间
-    function updateThemeCompleteTime(string memory themeId_,uint256 closeTime) public {
-        address  publisherAddress = _challengeTheme[themeId_].originator;
-        require(publisherAddress == msg.sender,"The current user is not a publisher");//不是发布者，不能调整结束时间
+
+
+    //发布新闻的时候，提前设置倍率和时间
+    function setTimeAndOdds(string memory themeId_,uint256 closeTime,uint256 odds) public  {
+        require( _challengeTheme[themeId_].isComplete == false,"The results have been published and the time cannot be modified");//已经发布结果，无法修改时间
         _challengeTheme[themeId_].isCompleteTime = closeTime;
+        _challengeTheme[themeId_].odds = odds;
     }
 
     //查询用户参与指定主题挑战信息
@@ -712,7 +782,62 @@ contract challenge{
         return info;
     }
 
-  
+    //设置可发布结果的地址 - 需要管理员权限
+    function addRoleAddress(address roleAddress) public isOwner {
+        _roleAddress[roleAddress] = true;
+    }
+
+    //取消地址发布结果的权限 - 需要管理员权限
+    function cancelRoleAddress(address roleAddress) public isOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    //设置主题master信息-用于修改合约之后的数据迁移
+    function setMasterData(string  memory  themeId_, uint256    amount_,uint256 endTime,uint256 odds,address masterAddress) public isOwner{
+        require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated");
+        require(amount_ > 1000000000000000000,"Publisher token amount 1");
+        require(odds >= 2,"The minimum value of magnification is 2");
+
+
+       _challengeTheme[themeId_].idstr = themeId_;
+       _challengeTheme[themeId_].reward = amount_;
+       _challengeTheme[themeId_].originator = masterAddress;
+       _challengeTheme[themeId_].isCompleteTime = endTime;
+       _challengeTheme[themeId_].challenge = true;
+       _challengeTheme[themeId_].isComplete = false;
+       _challengeTheme[themeId_].odds = odds;
+    }
+
+    //设置主题challenger信息-用于修改合约之后的数据迁移
+    function setChallengerData(string memory themeId_,uint256 amount_,address challengerAddress) public isOwner{
+        uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
+        address  publisherAddress = _challengeTheme[themeId_].originator;//发布者
+ 
+        require(publisherAddress != challengerAddress,"The initiator cannot challenge his proposition");//发起者不能挑战自己的命题
+        //require(_challengeTheme[themeId_].isComplete == false,"The current challenge is over");//当前挑战已经结束了，不能在发起挑战
+        //require(_challengeTheme[themeId_].isCompleteTime > block.timestamp,"The current challenge time is over");//挑战时间已经结束，不能在发起挑战
+        require(_challengeTheme[themeId_].challengeTotal.add(amount_) <= _challengeTheme[themeId_].reward.div(odds.sub(1)) ,"The total challenge amount cannot be higher than the maximum available quota");//挑战总额，不能高于最大可用额度
+        require(amount_ >0,"The number of challenges cannot be zero");//挑战金额不能为0
+
+
+
+
+
+        if(_challengerInfo[themeId_][challengerAddress].amount == 0){
+            _challengeTheme[themeId_].count += 1;//记录参与人数
+        }
+
+        
+        _challengerInfo[themeId_][challengerAddress].amount += amount_;//挑战数量
+        _challengerInfo[themeId_][challengerAddress].challengeTime = block.timestamp;//挑战时间
+        _challengerInfo[themeId_][challengerAddress].challeng = false;//挑战内容
+        _challengerInfo[themeId_][challengerAddress].theme = true;//主题内容
+        _challengerInfo[themeId_][challengerAddress].reward +=(amount_.mul(odds));//挑战奖励-挑战内容*倍率
+        _challengerInfo[themeId_][challengerAddress].times += 1;//挑战次数
+        _challengerInfo[themeId_][challengerAddress].idstr = themeId_;//挑战Id
+        _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额  
+    }
+
     //提现
     function withdrawal() public {
         _token.safeTransfer(address(0xb7Ac142BFEBBCe40d51088Aa8b83BA806D79964c),tokenBalance());//此功能用于测试，之后会屏蔽掉
