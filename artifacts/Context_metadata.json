@@ -1,0 +1,44 @@
+{
+	"compiler": {
+		"version": "0.5.16+commit.9c3226ce"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			}
+		],
+		"devdoc": {
+			"methods": {}
+		},
+		"userdoc": {
+			"methods": {}
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"challeng/my_contract/1.usdt-token.sol": "Context"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"challeng/my_contract/1.usdt-token.sol": {
+			"keccak256": "0x576a9e8016330b0d55a5b102734aa886254bdb45cbb10c9ba7ef76a06e5a6f87",
+			"urls": [
+				"bzz-raw://96abd9003866fd0e2b3a2ea1b22998cb7d53b02558043a0a9303ba046de87556",
+				"dweb:/ipfs/QmRYE3zseij421w9YvdPvkgwASGXn6NctbJBXFWWrAWa5G"
+			]
+		}
+	},
+	"version": 1
+}

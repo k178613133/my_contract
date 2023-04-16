@@ -1,0 +1,127 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "themeId_",
+						"type": "string"
+					}
+				],
+				"name": "getTotalRewardByTheme",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "idstr",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "originator",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "reward",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "isCompleteTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isComplete",
+								"type": "bool"
+							},
+							{
+								"internalType": "bool",
+								"name": "challenge",
+								"type": "bool"
+							},
+							{
+								"internalType": "bool",
+								"name": "result",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "challengeTotal",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "hasReceive",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "profit",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "odds",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "count",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct ChallengContract.Theme",
+						"name": "theme_",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"challeng/my_contract/7.masterPool.sol": "ChallengContract"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"challeng/my_contract/7.masterPool.sol": {
+			"keccak256": "0xbc337058b0064973e7357f1ac2bbe7e87064b66cc4f751def5ff5262a0dd13fc",
+			"license": "Unlicensed",
+			"urls": [
+				"bzz-raw://0cf96d4f6b99f79c2112ca6a84e1129a78ffcaa1ab33de71390a1911469f0fef",
+				"dweb:/ipfs/Qmf9CRSC9VtAVLprEwmqAz9fWgtgf8xiajc4zv7i9W275W"
+			]
+		}
+	},
+	"version": 1
+}

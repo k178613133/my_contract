@@ -1,0 +1,120 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnerSet",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "changeOwner",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getOwner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"changeOwner(address)": {
+					"details": "Change owner",
+					"params": {
+						"newOwner": "address of new owner"
+					}
+				},
+				"constructor": {
+					"details": "Set contract deployer as owner"
+				},
+				"getOwner()": {
+					"details": "Return owner address ",
+					"returns": {
+						"_0": "address of owner"
+					}
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"challeng/my_contract/Challeng-v3.sol": "Owner"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"challeng/my_contract/Challeng-v3.sol": {
+			"keccak256": "0xff7cda72be989b84aa0f473d5db0d93eb212829fec8d2002f6dff69f412de141",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://02da6e4b0224d8e3a6a365bec48e8cccee68c8d7323c0fc3cd06d01ec703e4b4",
+				"dweb:/ipfs/Qmdze2bUtm9UUTiU2ZSCcVj7jqV5AjE1xPqnNpAWji2KEY"
+			]
+		},
+		"challeng/my_contract/console.sol": {
+			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://bb1b420f6e765ec9059251791a3da8462dc529753a602c9a6413291db4adb4dc",
+				"dweb:/ipfs/QmWbsfbRV5tKApRqMnxSHqtnimom5qGgXaGB2xgEqw187f"
+			]
+		}
+	},
+	"version": 1
+}

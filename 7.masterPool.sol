@@ -9,6 +9,24 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
 
+//需要调用的外部接口-挑战合约
+interface ChallengContract {
+    struct Theme{
+        string idstr;//数字ID
+        address originator;//发布者地址
+        uint256 reward;//总奖励
+        uint256 isCompleteTime;//结束时间
+        bool isComplete;//是否已经完成
+        bool challenge;//主题挑战胜负
+        bool result;//结果
+        uint256 challengeTotal;//目前已经挑战总额
+        bool hasReceive;   // 是否已经领取
+        uint256 profit;//收益
+        uint256 odds;//赔率
+        uint256 count;//参与人数
+    }
+    function getTotalRewardByTheme(string memory themeId_ ) external   view returns(Theme  memory theme_ );
+}
 
 
 interface IERC20 {
@@ -529,25 +547,22 @@ library SafeERC20 {
  
 
  
-contract TokenRelease   {
+contract MasterPool   {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     // ERC20 basic token contract being held
     IERC20 private  _token;
 
-    address private _receivingAddress;
-    uint256 private _lastReleaseTime;
+
+    address private _contractAddrss;//挑战合约地址
+    address private _lockContractAddress;//锁仓合约地址
+
     uint256 private _decimals = 18;
     uint256 private _totalReleased ;//Record total released quantity
-    uint256 private _firstReleaseTime;//First release time
     address private _owner;//admin address
 
-    uint256 private _releaseAmount = 7200 * 10 ** _decimals;//Daily release quantity, initial 7200, release by half according to cycle
-    uint256 private _halfCycle = 1 * 60 * 60 * 24 * 3;// 1 * 60 * 60 * 24 * 1458 ;//Half cycle
-    uint256 private _releaseInterval =1* 60 * 5;// 1* 60 * 60 * 24;//Every release interval
-    uint256 private _releasesCount = 0;//Record the total number of releases 
-  
+   
 
     constructor() {
         _owner = msg.sender;
@@ -568,19 +583,9 @@ contract TokenRelease   {
     function setTokenAddress(address tokenAddress ) public virtual   onlyOwner {
         _token = IERC20(tokenAddress);
     }
-    /*
-     *@Set the address of the receiving token
-     */
-    function setReceivingAddress(address receivingAddress) public virtual onlyOwner {
-        _receivingAddress = address(receivingAddress);
-    }
+   
 
-    /*
-     *  @Set the first release time
-     */
-    function setFirstReleaseTime(uint256 firstReleaseTime ) public virtual onlyOwner {
-        _firstReleaseTime = firstReleaseTime;
-    }
+ 
 
     function changeOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
@@ -594,9 +599,7 @@ contract TokenRelease   {
         return _token;
     }
  
-    function lastReleaseTime() public view virtual returns (uint256) {
-        return _lastReleaseTime;
-    }
+ 
 
     function decimals() public view virtual returns (uint256) {
         return _decimals;
@@ -607,81 +610,86 @@ contract TokenRelease   {
         return _totalReleased;
     }
 
- 
-    function getReleasesCount() public view virtual returns (uint256) {
-        return _releasesCount;
-    }
 
-    function getFirstReleaseTime() public view virtual returns (uint256) {
-        return _releasesCount;
-    }
 
     function tokenBalance() public view virtual returns (uint256) {
+        if(address(token()) == address(0)){
+            return 0;
+        }
         uint256 amount = token().balanceOf(address(this));
         return amount;
     }
 
-    // function firstReleaseTime() public view virtual returns (uint256) {
-    //     return _firstReleaseTime;
-    // }
-    /*
-    *
-    * Reduce the cycle of the base by half, and calculate the amount that should be released currently
-    */
-    function getCurrentReleaseTokenAmount() public view virtual returns (uint256) {
-        uint256 amount = _releaseAmount;//Quantity released this time
-        uint256 numberOfTimesToHalve = getNumberOfTimesToHalve();// block.timestamp.sub(_firstReleaseTime)%_halfCycle;//Calculate the number of halved cycles
-        if(numberOfTimesToHalve >0){
-         amount = amount / numberOfTimesToHalve.add(1);//Calculate the current release amount based on halving times
-        }
-        return amount;
+
+    //设置挑战合约地址
+    function setChallengContract(address contractAddrss) public {
+        _contractAddrss = contractAddrss;
     }
     
-    /*
-    *
-    *Calculate the number of times the current time period is halved
-    */
-    function getNumberOfTimesToHalve() public view virtual returns (uint256) {
-        if(_firstReleaseTime>0){
-            uint256 numberOfTimesToHalve =  (block.timestamp.sub(_firstReleaseTime)).div(_halfCycle);//Calculate the number of halved cycles
-            return numberOfTimesToHalve;
-        }
-        else {
-            return 0;
-        }
-    } 
+    //查看挑战合约地址
+    function getContractAddrss() public view returns(address){
+        return _contractAddrss;
+    }
 
-   
+    //设置锁仓合约地址
+    function setLockContractAddress(address lockContractAddress) public {
+        _lockContractAddress = lockContractAddress;
+    }
+    
+    //查看锁仓合约地址
+    function getLockContractAddress() public view returns(address){
+        return _lockContractAddress;
+    }
 
     function getTimestamp() public view virtual returns (uint256) {
         return block.timestamp;
     }
 
-    function release(address[] calldata recipients, uint256[] calldata values) public virtual {
-        uint256 releaseTime =  _firstReleaseTime.add(_releasesCount * _releaseInterval ) ;//Release time
-        uint256 amount = getCurrentReleaseTokenAmount();
+    //调用挑战合约，查询新闻ID，对应的mastger地址，锁仓半年，可以参与master和参与挑战
+    function sendMasterTokenLock(string[] memory themeId,uint256[] memory values) public  onlyOwner  (){
+        require(themeId.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
+        require(address(token()) != address(0) , "Release: need set Token Address");
+        require(address(getContractAddrss()) != address(0) , "Release: need set Challeng Contract Address");
 
+        uint256 sendTotal = 0;
+        for(uint256 i=0;i<values.length;i++){
+            sendTotal = sendTotal + values[i];
+        }
+
+        require(tokenBalance() >= sendTotal , "Release: Insufficient total amount available for distribution");
+
+        ChallengContract challengContract = ChallengContract(getContractAddrss());
+        for(uint256 i=0;i<themeId.length;i++){
+            ChallengContract.Theme memory themeInfo  =  challengContract.getTotalRewardByTheme(themeId[i]);
+            address receiveAddress =  themeInfo.originator;
+            uint256 receiveAmount =  values[i];
+            if(address(receiveAddress) != address(0)){
+                token().safeTransferFrom(address(this),address(_lockContractAddress),receiveAmount);
+                _totalReleased = _totalReleased + receiveAmount;
+            }
+        }
+    }
+
+
+    //分配到指定地址
+    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual {
         // require(amount > 0, "Release: no tokens to release");
-        require(_firstReleaseTime > 0, "Release: need set First Release Time");
-        require(address(_receivingAddress) !=address(0) , "Release: need set Receiving Address");
         require(address(_token) != address(0) , "Release: need set Token Address");
-        require(block.timestamp >= releaseTime, "Release: current time is before release time");//Judge whether the release time is up, otherwise it will not be released
-        
-        _lastReleaseTime = releaseTime;
-        _totalReleased = _totalReleased.add(amount);//Count the total released quantity
-        // token().safeTransfer(_receivingAddress, amount);//Start releasing to the specified ore pool
+        require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
+
         uint256 totalAmount = 0;
-        
+
         for (uint256 i = 0; i < recipients.length; i++){
-            token().safeTransfer(recipients[i], values[i]);//Start releasing to the specified ore pool
+            
             totalAmount = totalAmount.add(values[i]);
         }
-        require(amount >= totalAmount , "The number of air drops exceeds the daily release amount");
+        require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
 
-        if(amount.sub(totalAmount) >0 ){
-            token().safeTransfer(_receivingAddress, amount.sub(totalAmount));//
+        for (uint256 i = 0; i < recipients.length; i++){
+            token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            _totalReleased = _totalReleased + values[i];
         }
-
-        _releasesCount = _releasesCount.add(1);//Total release times increased by 1
     }
+
+    
 }

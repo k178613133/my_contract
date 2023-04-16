@@ -1,0 +1,138 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"ropsten:3": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"rinkeby:4": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"kovan:42": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"goerli:5": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"gasEstimates": null,
+		"methodIdentifiers": {
+			"getTotalRewardByTheme(string)": "6441f9d0"
+		}
+	},
+	"abi": [
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "themeId_",
+					"type": "string"
+				}
+			],
+			"name": "getTotalRewardByTheme",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "string",
+							"name": "idstr",
+							"type": "string"
+						},
+						{
+							"internalType": "address",
+							"name": "originator",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "reward",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "isCompleteTime",
+							"type": "uint256"
+						},
+						{
+							"internalType": "bool",
+							"name": "isComplete",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "challenge",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "result",
+							"type": "bool"
+						},
+						{
+							"internalType": "uint256",
+							"name": "challengeTotal",
+							"type": "uint256"
+						},
+						{
+							"internalType": "bool",
+							"name": "hasReceive",
+							"type": "bool"
+						},
+						{
+							"internalType": "uint256",
+							"name": "profit",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "odds",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "count",
+							"type": "uint256"
+						}
+					],
+					"internalType": "struct ChallengContract.Theme",
+					"name": "theme_",
+					"type": "tuple"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		}
+	]
+}

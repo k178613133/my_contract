@@ -1,0 +1,59 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "getCurrentReleaseTokenAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"challeng/my_contract/distribution.sol": "TokenContract"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"challeng/my_contract/distribution.sol": {
+			"keccak256": "0xd880ef3dd7482bc5e4b77f300b3db6cd840753d81c64c29f88bc91f25be97db2",
+			"license": "Unlicensed",
+			"urls": [
+				"bzz-raw://d65eb1b67007754b9b877b775e5643508de6e7e5b58000b0892a579fc416fc4f",
+				"dweb:/ipfs/QmS8Q6jzGxx81F5tKG4m4UdhLn9J8vEngs3oiYQ7xu1gkh"
+			]
+		}
+	},
+	"version": 1
+}
