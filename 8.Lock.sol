@@ -686,7 +686,7 @@ contract Lock   {
         uint256 availableReceive = totalAmount - userLockInfo.alreadyReceive;
         require(availableReceive>0,"There is currently no claim available");
         _token.safeTransfer(msg.sender,availableReceive);//下发用户释放奖励
-
+        // token().safeTransfer(userAddr,availableReceive);
         _userLockInfo[themeId_][msg.sender].alreadyReceive += availableReceive;//记录用户对应新闻的总领取数量
         _userLockInfo[themeId_][msg.sender].receiveTimes += 1;//记录用户对应新闻的总领取次数
         _totalReleased += availableReceive;//合约所有用户领取代币总量

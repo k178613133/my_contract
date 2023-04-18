@@ -691,7 +691,9 @@ contract Distribution   {
         uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
         amount = amount * _masterRewardScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!");
-        token().safeTransferFrom(address(this),address(getMasterRewardsAddress()),amount);//发送到master奖励地址
+        // token().safeTransferFrom(address(this),address(getMasterRewardsAddress()),amount);//发送到master奖励地址
+        token().safeTransfer(getMasterRewardsAddress(), amount);//
+
         _totalReleased = _totalReleased + amount;
 
     }
@@ -704,7 +706,9 @@ contract Distribution   {
         uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
         amount = amount * _funPoolScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!");
-        token().safeTransferFrom(address(this),address(getFunPoolAddress()),amount);//发送到基金池地址
+        // token().safeTransferFrom(address(this),address(getFunPoolAddress()),amount);//发送到基金池地址
+        token().safeTransfer(getFunPoolAddress(), amount);//
+
         _totalReleased = _totalReleased + amount;
 
     }
@@ -717,7 +721,9 @@ contract Distribution   {
         uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
         amount = amount * _channelRewardsScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!!");
-        token().safeTransferFrom(address(this),address(getChannelRewardsAddress()),amount);//发送到渠道奖励地址
+        // token().safeTransferFrom(address(this),address(getChannelRewardsAddress()),amount);//发送到渠道奖励地址
+        token().safeTransfer(getChannelRewardsAddress(), amount);//
+
         _totalReleased = _totalReleased + amount;
     }
 
@@ -729,30 +735,32 @@ contract Distribution   {
         uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
         amount = amount * _oracleRewardsScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!!");
-        token().safeTransferFrom(address(this),address(getOracleRewardsAddress()),amount);//发送到预言机奖励地址
+        // token().safeTransferFrom(address(this),address(getOracleRewardsAddress()),amount);//发送到预言机奖励地址
+        token().safeTransfer(getOracleRewardsAddress(), amount);//
+
         _totalReleased = _totalReleased + amount;
 
     }
 
     //分配到指定地址
-    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual {
-        // require(amount > 0, "Release: no tokens to release");
-        require(address(_token) != address(0) , "Release: need set Token Address");
-        require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
+    // function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual {
+    //     // require(amount > 0, "Release: no tokens to release");
+    //     require(address(_token) != address(0) , "Release: need set Token Address");
+    //     require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
 
-        uint256 totalAmount = 0;
+    //     uint256 totalAmount = 0;
 
-        for (uint256 i = 0; i < recipients.length; i++){
+    //     for (uint256 i = 0; i < recipients.length; i++){
             
-            totalAmount = totalAmount.add(values[i]);
-        }
-        require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
+    //         totalAmount = totalAmount.add(values[i]);
+    //     }
+    //     require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
 
-        for (uint256 i = 0; i < recipients.length; i++){
-            token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
-            _totalReleased = _totalReleased + values[i];
-        }
-    }
+    //     for (uint256 i = 0; i < recipients.length; i++){
+    //         token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+    //         _totalReleased = _totalReleased + values[i];
+    //     }
+    // }
 
     //查询每日释放量
     function getCurrentReleaseTokenAmount() public returns (uint256){

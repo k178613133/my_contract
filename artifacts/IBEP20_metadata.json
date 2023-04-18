@@ -301,7 +301,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/1.usdt-token.sol": "IBEP20"
+			"my_contract/1.usdt-token.sol": "IBEP20"
 		},
 		"evmVersion": "istanbul",
 		"libraries": {},
@@ -312,7 +312,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/1.usdt-token.sol": {
+		"my_contract/1.usdt-token.sol": {
 			"keccak256": "0x576a9e8016330b0d55a5b102734aa886254bdb45cbb10c9ba7ef76a06e5a6f87",
 			"urls": [
 				"bzz-raw://96abd9003866fd0e2b3a2ea1b22998cb7d53b02558043a0a9303ba046de87556",

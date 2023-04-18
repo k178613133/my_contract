@@ -664,7 +664,9 @@ contract MasterPool   {
             address receiveAddress =  themeInfo.originator;
             uint256 receiveAmount =  values[i];
             if(address(receiveAddress) != address(0)){
-                token().safeTransferFrom(address(this),address(_lockContractAddress),receiveAmount);
+                // token().safeTransferFrom(address(this),address(_lockContractAddress),receiveAmount);
+                token().safeTransfer(address(_lockContractAddress),receiveAmount);
+
                 _totalReleased = _totalReleased + receiveAmount;
             }
         }
@@ -686,9 +688,17 @@ contract MasterPool   {
         require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
 
         for (uint256 i = 0; i < recipients.length; i++){
-            token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            // token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            token().safeTransfer(recipients[i],values[i]);
             _totalReleased = _totalReleased + values[i];
         }
+    }
+
+    //销毁指定数量Token
+    function burn(uint256 burnAmount ) public onlyOwner{
+        require(burnAmount > 0 , "No quantity to send");
+        // token().safeTransferFrom(address(this),address(0),burnAmount);//发送指定数量Token到黑洞中进行销毁
+        token().safeTransfer(address(0x0000000000000000000000000000000000000000),burnAmount);
     }
 
     

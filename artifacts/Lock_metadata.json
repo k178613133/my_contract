@@ -37,19 +37,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
-				"name": "getDistributor",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -63,6 +50,19 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMasterRewardAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -172,11 +172,11 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "distributor_",
+						"name": "masterRewardAddress_",
 						"type": "address"
 					}
 				],
-				"name": "setDistributor",
+				"name": "setMasterRewardAddress",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -240,7 +240,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/Lock.sol": "Lock"
+			"my_contract/8.Lock.sol": "Lock"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -254,15 +254,15 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/Lock.sol": {
-			"keccak256": "0x7dac7e4b5b05a01c4172ea082af953947e16f535be643b58744745b811eff220",
+		"my_contract/8.Lock.sol": {
+			"keccak256": "0x69b82bad550aafcc4e5b57d7fe0192b3a91369abe2782e1b88dabef17068f0a2",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://33733192d9e0366d0dc35f1868e2d35bf70b393f83f670759e61964e3828dfa3",
-				"dweb:/ipfs/QmZayFCd1UQAsU8b2yj2dNAcoD4vMW8XmGFA5YRvnQ5ktV"
+				"bzz-raw://6de564959d8dd03c576d8a9665ae1af43430b0ae389641fe047852b86a10fa7a",
+				"dweb:/ipfs/QmSZKHXUEEiEJBGuStdWy6LSpgJ8SNezGTLneXsKWBmLqT"
 			]
 		},
-		"challeng/my_contract/console.sol": {
+		"my_contract/console.sol": {
 			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
 			"license": "MIT",
 			"urls": [

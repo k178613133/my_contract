@@ -554,7 +554,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/Challeng-v3.sol": "challenge"
+			"my_contract/4.Challeng-v3.sol": "challenge"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -568,7 +568,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/Challeng-v3.sol": {
+		"my_contract/4.Challeng-v3.sol": {
 			"keccak256": "0xff7cda72be989b84aa0f473d5db0d93eb212829fec8d2002f6dff69f412de141",
 			"license": "GPL-3.0",
 			"urls": [
@@ -576,7 +576,7 @@
 				"dweb:/ipfs/Qmdze2bUtm9UUTiU2ZSCcVj7jqV5AjE1xPqnNpAWji2KEY"
 			]
 		},
-		"challeng/my_contract/console.sol": {
+		"my_contract/console.sol": {
 			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
 			"license": "MIT",
 			"urls": [

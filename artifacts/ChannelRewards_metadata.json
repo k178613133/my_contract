@@ -56,6 +56,19 @@
 			},
 			{
 				"inputs": [],
+				"name": "getRewardAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "getTotalReleased",
 				"outputs": [
 					{
@@ -65,6 +78,26 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "release",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "rewardAddress_",
+						"type": "address"
+					}
+				],
+				"name": "setRewardAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -105,13 +138,6 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "transferToken",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -133,7 +159,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/channelRewards.sol": "ChannelRewards"
+			"my_contract/5.channelRewards.sol": "ChannelRewards"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -147,12 +173,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/channelRewards.sol": {
-			"keccak256": "0x3625aa1b0d278ebe0a0792f49ae9b3a08e322cde1327b5506949e5ee069076d7",
+		"my_contract/5.channelRewards.sol": {
+			"keccak256": "0x8275519d86c2582ae7a1cf0d7d371434c846449afa7fb984362e1f7efe625f96",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://23583a9ac42c84a237912d1cb6325026a607dc4e72fbd53296c0a052977c22df",
-				"dweb:/ipfs/QmZendzbvqZAdmWDManRKmia3fohibbs2yUrKwupbz8MwA"
+				"bzz-raw://8c27ebba3deb4db0082f1480a092b5cae9f80d90810d31a76e759c807e66ab1b",
+				"dweb:/ipfs/QmQ5p9AVw6NUqWgAR1bvLRGhniQqvvuxJGZh6Yus5SBSB3"
 			]
 		}
 	},

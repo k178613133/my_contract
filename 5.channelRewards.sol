@@ -540,7 +540,7 @@ contract ChannelRewards   {
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
 
-    
+    address private _rewardAddress;//剩余奖励，发送到奖励池子
 
     constructor() {
         _owner = msg.sender;
@@ -580,9 +580,16 @@ contract ChannelRewards   {
         return _decimals;
     }
 
- 
     function getTotalReleased() public view virtual returns (uint256) {
         return _totalReleased;
+    }
+ 
+    function getRewardAddress() public view virtual returns (address) {
+        return _rewardAddress;
+    }
+
+    function setRewardAddress(address rewardAddress_ ) public {
+         _rewardAddress = rewardAddress_;
     }
 
   
@@ -593,8 +600,6 @@ contract ChannelRewards   {
         uint256 amount = token().balanceOf(address(this));
         return amount;
     }
-
- 
 
    //分配给地址发放
     function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyOwner {
@@ -614,13 +619,21 @@ contract ChannelRewards   {
     
         for (uint256 i = 0; i < recipients.length; i++){
             // token().safeTransfer(recipients[i], values[i]);//Start releasing to the specified ore pool
-            token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            //token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            token().safeTransfer(recipients[i],values[i]);//
 
             _totalReleased = _totalReleased + values[i];
         }
     }
-    
-    function transferToken()public {
+
+    //当天剩余，发送到奖励池中
+    function release() public onlyOwner{
+        uint256 amount = tokenBalance();//当前合约地址剩余奖励
+        require(amount>0,"No quantity to send");
+        require(getRewardAddress() != address(0),"Release: need set Reward Address");
+        //token().safeTransferFrom(address(this),getRewardAddress(),amount);//将剩余金额，发送到奖励池中
+        token().safeTransfer(getRewardAddress(),amount);
 
     }
+
 }
