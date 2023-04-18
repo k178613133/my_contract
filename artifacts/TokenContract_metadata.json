@@ -6,16 +6,22 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [],
-				"name": "getCurrentReleaseTokenAmount",
-				"outputs": [
+				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "amount",
 						"type": "uint256"
 					}
 				],
-				"stateMutability": "view",
+				"name": "burn",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
@@ -32,7 +38,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/distribution.sol": "TokenContract"
+			"my_contract/7.masterPool.sol": "TokenContract"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -46,12 +52,20 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/distribution.sol": {
-			"keccak256": "0xd880ef3dd7482bc5e4b77f300b3db6cd840753d81c64c29f88bc91f25be97db2",
+		"my_contract/7.masterPool.sol": {
+			"keccak256": "0xb9a73358cc53e77fccf5fa3fb3b075fb4e0c11e3c55f5616e62571cc87f90b50",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://d65eb1b67007754b9b877b775e5643508de6e7e5b58000b0892a579fc416fc4f",
-				"dweb:/ipfs/QmS8Q6jzGxx81F5tKG4m4UdhLn9J8vEngs3oiYQ7xu1gkh"
+				"bzz-raw://6d99f24e74f6fa910aa336278c02e32ab56764368bbc3897ea9ec381f6af37fa",
+				"dweb:/ipfs/QmV1tzohnxqg5fnbYJVmBok98KBZF7i5qtofJvKa7siWFK"
+			]
+		},
+		"my_contract/console.sol": {
+			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://bb1b420f6e765ec9059251791a3da8462dc529753a602c9a6413291db4adb4dc",
+				"dweb:/ipfs/QmWbsfbRV5tKApRqMnxSHqtnimom5qGgXaGB2xgEqw187f"
 			]
 		}
 	},

@@ -664,7 +664,7 @@ contract challenge is Owner{
         require(_challengeTheme[themeId_].originator == address(0),"The themeId Has been initiated!!");
         require(_challengeTheme[themeId_].odds > 0,"The proposition does not set a probability!");
         require(_challengeTheme[themeId_].isCompleteTime > 0,"The proposition has no end time set!");
-        require(amount_ > 1000000000000000000,"Publisher token amount 1");
+        require(amount_ >= 1000000000000000000,"Publisher token amount 1");
 
        _token.safeTransferFrom(msg.sender,address(this),amount_);
        _challengeTheme[themeId_].idstr = themeId_;

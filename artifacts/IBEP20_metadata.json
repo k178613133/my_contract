@@ -312,13 +312,8 @@
 		"remappings": []
 	},
 	"sources": {
-<<<<<<< HEAD
-		"challeng/my_contract/1.usdt-token.sol": {
-			"keccak256": "0xe49204884bfc5627d50d773cead0d48d0e33ae1e4bb2d042870aa7caadcd713d",
-=======
 		"my_contract/1.usdt-token.sol": {
-			"keccak256": "0x576a9e8016330b0d55a5b102734aa886254bdb45cbb10c9ba7ef76a06e5a6f87",
->>>>>>> d7502ba78b6e4e949596d71208b32bfebedf37b8
+			"keccak256": "0xe49204884bfc5627d50d773cead0d48d0e33ae1e4bb2d042870aa7caadcd713d",
 			"urls": [
 				"bzz-raw://deaba8a171c799d3ca5e09848e96add0ef431ddb3de1a12b983f07b6e2408b38",
 				"dweb:/ipfs/Qma4iDGoPx6BABLDQBB2oJFMo2XRvAg1HGiBC8f7pCQmAB"

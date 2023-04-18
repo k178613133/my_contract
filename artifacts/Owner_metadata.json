@@ -85,7 +85,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/4.Challeng-v3.sol": "Owner"
+			"my_contract/4.Challeng-v3.sol": "Owner"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -99,15 +99,15 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/4.Challeng-v3.sol": {
-			"keccak256": "0x081860258aeb6ad9d9b4e7165881237f6a8564397e1b9377f51e3002767ba869",
+		"my_contract/4.Challeng-v3.sol": {
+			"keccak256": "0x512f5589a1281dad453fb71c71e05ac539b01ceb0abe476433818d7722d9696f",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://67f79a0a310f781dc55989b585487906640fa08243d413669b249d0a99be09d9",
-				"dweb:/ipfs/QmVzEn2HEo9HwedAYCJxUckCVirY5sxtUX55Rd32pPCbvd"
+				"bzz-raw://b689f9a0b2db8b31605cbf58ffe896ae9e9b6c44469b7a24738ee9173716edb7",
+				"dweb:/ipfs/QmW28xAJ5bijR8wiTKiwp5G4tEhcQPECxM93QfhqXNf8vT"
 			]
 		},
-		"challeng/my_contract/console.sol": {
+		"my_contract/console.sol": {
 			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
 			"license": "MIT",
 			"urls": [

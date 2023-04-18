@@ -8,7 +8,7 @@
 
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
-
+import "./console.sol";
 //需要调用的外部接口-挑战合约
 interface ChallengContract {
     struct Theme{
@@ -28,6 +28,13 @@ interface ChallengContract {
     function getTotalRewardByTheme(string memory themeId_ ) external   view returns(Theme  memory theme_ );
 }
 
+interface TokenContract {
+        function burn(uint256 amount) external  returns (bool);
+}
+
+interface LockContract {
+    function lock(uint256 amount_,address userAddress_, string memory themeId_) external;
+}
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
@@ -557,7 +564,7 @@ contract MasterPool   {
 
     address private _contractAddrss;//挑战合约地址
     address private _lockContractAddress;//锁仓合约地址
-
+    address private _tokenAddress;//token合约地址
     uint256 private _decimals = 18;
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
@@ -580,8 +587,9 @@ contract MasterPool   {
     /*
      *@Set the token address that needs to be released periodically
      */
-    function setTokenAddress(address tokenAddress ) public virtual   onlyOwner {
-        _token = IERC20(tokenAddress);
+    function setTokenAddress(address tokenAddress_ ) public virtual   onlyOwner {
+        _tokenAddress = tokenAddress_;
+        _token = IERC20(tokenAddress_);
     }
    
 
@@ -650,7 +658,7 @@ contract MasterPool   {
         require(themeId.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
         require(address(token()) != address(0) , "Release: need set Token Address");
         require(address(getContractAddrss()) != address(0) , "Release: need set Challeng Contract Address");
-
+        require(address(getLockContractAddress()) != address(0),"Release: need set Lock Contract Address");
         uint256 sendTotal = 0;
         for(uint256 i=0;i<values.length;i++){
             sendTotal = sendTotal + values[i];
@@ -659,13 +667,19 @@ contract MasterPool   {
         require(tokenBalance() >= sendTotal , "Release: Insufficient total amount available for distribution");
 
         ChallengContract challengContract = ChallengContract(getContractAddrss());
+        LockContract lockContract = LockContract(getLockContractAddress());
         for(uint256 i=0;i<themeId.length;i++){
             ChallengContract.Theme memory themeInfo  =  challengContract.getTotalRewardByTheme(themeId[i]);
             address receiveAddress =  themeInfo.originator;
             uint256 receiveAmount =  values[i];
+            
             if(address(receiveAddress) != address(0)){
                 // token().safeTransferFrom(address(this),address(_lockContractAddress),receiveAmount);
-                token().safeTransfer(address(_lockContractAddress),receiveAmount);
+                console.log("the receiveAmount is ",receiveAmount);
+                console.log("the receiveAddress is ",receiveAddress);
+                console.log("the themeId[i] is ",themeId[i]);
+                lockContract.lock(receiveAmount, receiveAddress, themeId[i]);
+                token().safeTransfer(address(getLockContractAddress()),receiveAmount);
 
                 _totalReleased = _totalReleased + receiveAmount;
             }
@@ -696,9 +710,11 @@ contract MasterPool   {
 
     //销毁指定数量Token
     function burn(uint256 burnAmount ) public onlyOwner{
+        require(address(_tokenAddress) != address(0) , "Release: need set Token Address");
         require(burnAmount > 0 , "No quantity to send");
-        // token().safeTransferFrom(address(this),address(0),burnAmount);//发送指定数量Token到黑洞中进行销毁
-        token().safeTransfer(address(0x0000000000000000000000000000000000000000),burnAmount);
+
+        TokenContract tokenContract = TokenContract(_tokenAddress);
+        tokenContract.burn(burnAmount);//销毁
     }
 
     

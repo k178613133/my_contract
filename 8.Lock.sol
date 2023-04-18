@@ -539,7 +539,7 @@ contract Lock   {
 
 
     uint256 private _duration= 1 * 60 * 60 *24 * 180;//锁仓时长 180天
-    uint256 private _interval = 1 * 60 * 60 *24 ;//释放周期 1天
+    uint256 private _interval = 1 * 60 *  5 ;//释放周期 测试 10分钟  1 * 60 * 60 *24 ;//释放周期 1天
     uint256 private _decimals = 18;
     uint256 private _totalReleased ;
     
@@ -556,7 +556,6 @@ contract Lock   {
         uint256 availableReceive;//可领取数量
         uint256 alreadyReceive;//已经领取数量
         uint256 receiveTimes;//总领取次数
-        uint256 releaseTotal;//已经释放数量
         uint256 duration;//锁仓时长
     }
 
@@ -600,7 +599,7 @@ contract Lock   {
         return _masterRewardAddress;
     }
  
- 
+    
     function getLockTotal(address userAddr) public view virtual returns (uint256){
         return _lockTotal[userAddr];
     }
@@ -636,8 +635,10 @@ contract Lock   {
         return _totalReleased;
     }
 
- 
- 
+    //查询用户指定命题的锁仓信息
+    function getUserLockInfo(string memory themeId_,address userAddres_) public view virtual returns (LockInfo memory){
+        return _userLockInfo[themeId_][userAddres_];
+    }
  
 
     function tokenBalance() public view virtual returns (uint256) {
@@ -672,6 +673,8 @@ contract Lock   {
         _lockTotal[userAddress_] = _lockTotal[userAddress_] + amount_;
       
     }
+
+    
 
     //释放函数
     function release(string memory themeId_) public  {
