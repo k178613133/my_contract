@@ -199,6 +199,27 @@
 				"type": "function"
 			},
 			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "burn",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"constant": true,
 				"inputs": [],
 				"name": "decimals",
@@ -433,6 +454,9 @@
 				"balanceOf(address)": {
 					"details": "See {BEP20-balanceOf}."
 				},
+				"burn(uint256)": {
+					"details": "Burn `amount` tokens and decreasing the total supply."
+				},
 				"decimals()": {
 					"details": "Returns the token decimals."
 				},
@@ -489,10 +513,10 @@
 	},
 	"sources": {
 		"challeng/my_contract/1.usdt-token.sol": {
-			"keccak256": "0x576a9e8016330b0d55a5b102734aa886254bdb45cbb10c9ba7ef76a06e5a6f87",
+			"keccak256": "0xe49204884bfc5627d50d773cead0d48d0e33ae1e4bb2d042870aa7caadcd713d",
 			"urls": [
-				"bzz-raw://96abd9003866fd0e2b3a2ea1b22998cb7d53b02558043a0a9303ba046de87556",
-				"dweb:/ipfs/QmRYE3zseij421w9YvdPvkgwASGXn6NctbJBXFWWrAWa5G"
+				"bzz-raw://deaba8a171c799d3ca5e09848e96add0ef431ddb3de1a12b983f07b6e2408b38",
+				"dweb:/ipfs/Qma4iDGoPx6BABLDQBB2oJFMo2XRvAg1HGiBC8f7pCQmAB"
 			]
 		}
 	},
