@@ -490,7 +490,13 @@ contract SuperChal is Context, IBEP20, Ownable {
     return true;
   }
 
- 
+   /**
+   * @dev Burn `amount` tokens and decreasing the total supply.
+   */
+  function burn(uint256 amount) public returns (bool) {
+    _burn(_msgSender(), amount);
+    return true;
+  }
 
   /**
    * @dev Moves tokens `amount` from `sender` to `recipient`.
@@ -515,7 +521,24 @@ contract SuperChal is Context, IBEP20, Ownable {
     emit Transfer(sender, recipient, amount);
   }
 
+  /**
+   * @dev Destroys `amount` tokens from `account`, reducing the
+   * total supply.
+   *
+   * Emits a {Transfer} event with `to` set to the zero address.
+   *
+   * Requirements
+   *
+   * - `account` cannot be the zero address.
+   * - `account` must have at least `amount` tokens.
+   */
+  function _burn(address account, uint256 amount) internal {
+    require(account != address(0), "BEP20: burn from the zero address");
 
+    _balances[account] = _balances[account].sub(amount, "BEP20: burn amount exceeds balance");
+    _totalSupply = _totalSupply.sub(amount);
+    emit Transfer(account, address(0), amount);
+  }
 
 
  
