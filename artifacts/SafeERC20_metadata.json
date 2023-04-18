@@ -20,7 +20,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/3.distribution.sol": "SafeERC20"
+			"challeng/my_contract/5.channelRewards.sol": "SafeERC20"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -34,20 +34,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/3.distribution.sol": {
-			"keccak256": "0x054f5f39ba44b7e64f8301c231c54d1005b374efab05a0f9f28abee58995068c",
+		"challeng/my_contract/5.channelRewards.sol": {
+			"keccak256": "0x8275519d86c2582ae7a1cf0d7d371434c846449afa7fb984362e1f7efe625f96",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://349990fb3207a3c168644670de1d415d16a86e9947b40da6446b8e412d82d632",
-				"dweb:/ipfs/QmVyfmvCsnE7NWyh6So8fhr4N95ctaUVx71AC3vbJu6oZD"
-			]
-		},
-		"challeng/my_contract/console.sol": {
-			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://bb1b420f6e765ec9059251791a3da8462dc529753a602c9a6413291db4adb4dc",
-				"dweb:/ipfs/QmWbsfbRV5tKApRqMnxSHqtnimom5qGgXaGB2xgEqw187f"
+				"bzz-raw://8c27ebba3deb4db0082f1480a092b5cae9f80d90810d31a76e759c807e66ab1b",
+				"dweb:/ipfs/QmQ5p9AVw6NUqWgAR1bvLRGhniQqvvuxJGZh6Yus5SBSB3"
 			]
 		}
 	},

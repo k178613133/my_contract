@@ -100,7 +100,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/7.masterPool.sol": "ChallengContract"
+			"my_contract/7.masterPool.sol": "ChallengContract"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -114,12 +114,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/7.masterPool.sol": {
-			"keccak256": "0xbc337058b0064973e7357f1ac2bbe7e87064b66cc4f751def5ff5262a0dd13fc",
+		"my_contract/7.masterPool.sol": {
+			"keccak256": "0x559816484bab879d2d1b7c200bde9450db8c5da8565bb92e95fea260f26530b1",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://0cf96d4f6b99f79c2112ca6a84e1129a78ffcaa1ab33de71390a1911469f0fef",
-				"dweb:/ipfs/Qmf9CRSC9VtAVLprEwmqAz9fWgtgf8xiajc4zv7i9W275W"
+				"bzz-raw://be4b76b74b156214dd1ec992ba972efc9e8a9531786835bd02d018058674744a",
+				"dweb:/ipfs/QmeDaUpJJDRHSxz3ShvWcXufxY7byAALL1gN53qp55BV6m"
 			]
 		}
 	},

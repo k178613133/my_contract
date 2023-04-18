@@ -126,7 +126,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/funPool.sol": "FunPool"
+			"my_contract/6.funPool.sol": "FunPool"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -140,12 +140,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/funPool.sol": {
-			"keccak256": "0xdebf0c9bfdef303780f77e5585741432ff46564df0ccc05fe59db145ca5e4af9",
+		"my_contract/6.funPool.sol": {
+			"keccak256": "0x5b3175741887311247a13a266ef2eb1eb15b2c19ee3ac12a33ea8fe8f3b5dcd6",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://2f79d65641ac01c3e58f5131838df4d34525a9693c65797a037742e5c9402beb",
-				"dweb:/ipfs/QmSz4wp11jVCDjwNyui7a2YWBUo6wfMYgZhWRWEWj6kFQU"
+				"bzz-raw://4f14e8aed90f81f906b0a2d4d677f07fbdcfeef058897251d8939a45244adfe6",
+				"dweb:/ipfs/Qmf37DXbM4XCtFW4TPHdSC8BNpRtZ9fizUqtphEjB3szNV"
 			]
 		}
 	},

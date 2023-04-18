@@ -838,9 +838,5 @@ contract challenge is Owner{
         _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额  
     }
 
-    //提现
-    function withdrawal() public {
-        _token.safeTransfer(address(0xb7Ac142BFEBBCe40d51088Aa8b83BA806D79964c),tokenBalance());//此功能用于测试，之后会屏蔽掉
-    }
-   
+ 
 }

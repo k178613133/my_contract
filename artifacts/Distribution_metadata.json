@@ -65,24 +65,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "address[]",
-						"name": "recipients",
-						"type": "address[]"
-					},
-					{
-						"internalType": "uint256[]",
-						"name": "values",
-						"type": "uint256[]"
-					}
-				],
-				"name": "distributionToSpecify",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "getChannelRewardsAddress",
 				"outputs": [
@@ -310,7 +292,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/3.distribution.sol": "Distribution"
+			"my_contract/3.distribution.sol": "Distribution"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -324,15 +306,15 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/3.distribution.sol": {
-			"keccak256": "0x054f5f39ba44b7e64f8301c231c54d1005b374efab05a0f9f28abee58995068c",
+		"my_contract/3.distribution.sol": {
+			"keccak256": "0xf90ce0cbd13a77413515307b7b6083f04e341baec8240320f07362905b4504e5",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://349990fb3207a3c168644670de1d415d16a86e9947b40da6446b8e412d82d632",
-				"dweb:/ipfs/QmVyfmvCsnE7NWyh6So8fhr4N95ctaUVx71AC3vbJu6oZD"
+				"bzz-raw://306f0429a269aaedc7942f7244cbd0e6a01c1fd599b059c54c1b0c0f98c5fa0d",
+				"dweb:/ipfs/QmZtzAXrQiGZdsxcpRR5iPigshaQefCmejjegpvcPufbHi"
 			]
 		},
-		"challeng/my_contract/console.sol": {
+		"my_contract/console.sol": {
 			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
 			"license": "MIT",
 			"urls": [

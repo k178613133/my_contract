@@ -232,7 +232,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/2.release.sol": "Release"
+			"my_contract/2.release.sol": "Release"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -246,7 +246,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/2.release.sol": {
+		"my_contract/2.release.sol": {
 			"keccak256": "0x7c98a5c16539d00cd584ce502f2d0db58133c58fab97647a2de20af3b97e3dd9",
 			"license": "Unlicensed",
 			"urls": [
@@ -254,7 +254,7 @@
 				"dweb:/ipfs/QmUvyjX27it88TdmN1tBdz1PiDPz74W43ByLV2MMhdqYhb"
 			]
 		},
-		"challeng/my_contract/console.sol": {
+		"my_contract/console.sol": {
 			"keccak256": "0x65ab4ef3a21aae4c995d4f58a3b52c529e36df49a0fa8209a41a0b07c2dabe71",
 			"license": "MIT",
 			"urls": [

@@ -613,8 +613,8 @@ contract FunPool   {
     
         for (uint256 i = 0; i < recipients.length; i++){
             // token().safeTransfer(recipients[i], values[i]);//Start releasing to the specified ore pool
-            token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
-
+            //token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
+            token().safeTransfer(recipients[i],values[i]);
             _totalReleased = _totalReleased + values[i];
         }
     }

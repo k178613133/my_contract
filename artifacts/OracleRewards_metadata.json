@@ -126,7 +126,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"challeng/my_contract/OracleRewards.sol": "OracleRewards"
+			"my_contract/9.OracleRewards.sol": "OracleRewards"
 		},
 		"evmVersion": "paris",
 		"libraries": {},
@@ -140,12 +140,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"challeng/my_contract/OracleRewards.sol": {
-			"keccak256": "0x8062d19afd9934458db431ffb78f5acb24a4a19a6f50eda16ca4077cf9e293f5",
+		"my_contract/9.OracleRewards.sol": {
+			"keccak256": "0x63ed6c53e0ba50186df8e633f01042a8436ef41de30fb2a73f69fda551d7a72b",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://1942cd9e9cc655fedb9b6abe4bbd64fbd7075df78ded2d09f59ccb8e936f7441",
-				"dweb:/ipfs/QmQBUFrovaxgYTyWtwa4vGzN8FkkMEP6sP4mr824YHREPk"
+				"bzz-raw://b3e559efb27282bcb9e5d7f4484174f1039c71b8c1d82c7c2b8756f9e6f9e57f",
+				"dweb:/ipfs/QmUbawKjCjQJSwrwFLyDxoqE7AAwWjNm4fESY6xnT9VKQ3"
 			]
 		}
 	},
