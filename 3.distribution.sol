@@ -9,7 +9,7 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
 
-import "./console.sol";
+// import "./console.sol";
 
 //需要调用的外部接口-释放合约，查询每日释放数量
 interface TokenReleaseContract {
@@ -767,7 +767,7 @@ contract Distribution   {
         require(getReleaseContractAddress() != address(0),"Release: need set release  Address");
         TokenReleaseContract challengContract = TokenReleaseContract(getReleaseContractAddress());
         uint256 amount =  challengContract.getCurrentReleaseTokenAmount();
-        console.log("the amount is " ,amount);
+        // console.log("the amount is " ,amount);
         return amount;
     }
 }

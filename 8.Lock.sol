@@ -9,7 +9,7 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
 
-import "./console.sol";
+// import "./console.sol";
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);

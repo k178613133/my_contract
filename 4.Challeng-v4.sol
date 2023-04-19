@@ -1,13 +1,18 @@
 /**
- *Submitted for verification at polygonscan.com on 2023-03-20
+ *Submitted for verification at polygonscan.com on 2023-04-11
 */
 
 /**
- *Submitted for verification at BscScan.com on 2022-03-31
+ *Submitted for verification at Etherscan.io on 2023-02-25
 */
 
-// SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.6;
+/**
+ *Submitted for verification at Etherscan.io on 2023-02-23
+*/
+
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity ^0.8.0;
 
 // import "./console.sol";
 
@@ -290,7 +295,7 @@ library Address {
      * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCall(target, data, "Address: low-level call failed");
+        return functionCall(target, data, "Address: low-level call failed functionCall");
     }
 
     /**
@@ -513,7 +518,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed safeDecreaseAllowance");
         if (returndata.length > 0) {
             // Return data is optional
             require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
@@ -521,171 +526,338 @@ library SafeERC20 {
     }
 }
 
-/**
- * @title Ownable
- * @dev The Ownable contract has an owner address, and provides basic authorization control
- * functions, this simplifies the implementation of "user permissions".
- */
- 
+contract Owner {
 
- 
-contract Release   {
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
+    address private owner;
 
-    // ERC20 basic token contract being held
-    IERC20 private  _token;
- 
+    // event for EVM logging
+    event OwnerSet(address indexed oldOwner, address indexed newOwner);
 
-
-    address private _receivingAddress;
-    uint256 private _lastReleaseTime;
-    uint256 private _decimals = 18;
-    uint256 private _totalReleased ;//Record total released quantity
-    uint256 private _firstReleaseTime;//First release time
-    address private _owner;//admin address
-
-    uint256 private _releaseAmount = 7200 * 10 ** _decimals;//Daily release quantity, initial 7200, release by half according to cycle
-    uint256 private _halfCycle = 1 * 60 * 60;// 1 * 60 * 60 * 24 * 1458 ;//Half cycle
-    uint256 private _releaseInterval =1* 60 * 15;// 1* 60 * 60 * 24;//Every release interval
-    uint256 private _releasesCount = 0;//Record the total number of releases 
-  
-
-    constructor() {
-        _owner = msg.sender;
-    }
-
-    /**
-      * @dev Throws if called by any account other than the owner.
-      */
-    modifier onlyOwner() {
-        require(msg.sender == _owner);
+    // modifier to check if caller is owner
+    modifier isOwner() {
+        // If the first argument of 'require' evaluates to 'false', execution terminates and all
+        // changes to the state and to Ether balances are reverted.
+        // This used to consume all gas in old EVM versions, but not anymore.
+        // It is often a good idea to use 'require' to check if functions are called correctly.
+        // As a second argument, you can also provide an explanation about what went wrong.
+        require(msg.sender == owner, "Caller is not owner");
         _;
     }
 
-    /*
-     *@Set the token address that needs to be released periodically
+    /**
+     * @dev Set contract deployer as owner
      */
-    function setTokenAddress(address tokenAddress ) public virtual   onlyOwner {
-        _token = IERC20(tokenAddress);
+    constructor() {
+        // console.log("Owner contract deployed by:", msg.sender);
+        owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
+        emit OwnerSet(address(0), owner);
     }
-    /*
-     *@Set the address of the receiving token
-     */
-    function setReceivingAddress(address receivingAddress) public virtual onlyOwner {
-        _receivingAddress = address(receivingAddress);
-    }
-
-    /*
-     *  @Set the first release time
-     */
-    function setFirstReleaseTime(uint256 firstReleaseTime ) public virtual onlyOwner {
-        require(_firstReleaseTime == 0,"Already set, cannot be set again");
-        _firstReleaseTime = firstReleaseTime;
-    }
-
-    function changeOwner(address newOwner) public onlyOwner {
-        _owner = newOwner;
-    }
-
 
     /**
-     * @dev Returns the token being held.
+     * @dev Change owner
+     * @param newOwner address of new owner
      */
-    function token() public view virtual returns (IERC20) {
-        return _token;
-    }
- 
-    function lastReleaseTime() public view virtual returns (uint256) {
-        return _lastReleaseTime;
+    function changeOwner(address newOwner) public isOwner {
+        emit OwnerSet(owner, newOwner);
+        owner = newOwner;
     }
 
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
+    /**
+     * @dev Return owner address 
+     * @return address of owner
+     */
+    function getOwner() external view returns (address) {
+        return owner;
     }
+}
 
- 
-    function getTotalReleased() public view virtual returns (uint256) {
-        return _totalReleased;
-    }
-
- 
-    function getReleasesCount() public view virtual returns (uint256) {
-        return _releasesCount;
-    }
-
-    function getFirstReleaseTime() public view virtual returns (uint256) {
-        return _firstReleaseTime;
-    }
-
-    function tokenBalance() public view virtual returns (uint256) {
-        if(address(token()) == address(0)){
-            return 0;
-        }
-        uint256 amount = token().balanceOf(address(this));
-        return amount;
-    }
-
-
-    /*
-    *
-    * Reduce the cycle of the base by half, and calculate the amount that should be released currently
-    */
-    function getCurrentReleaseTokenAmount() public view virtual returns (uint256) {
-        uint256 amount = _releaseAmount;//Quantity released this time
-        uint256 numberOfTimesToHalve = getNumberOfTimesToHalve();// block.timestamp.sub(_firstReleaseTime)%_halfCycle;//Calculate the number of halved cycles
-        // if(numberOfTimesToHalve >0){
-            // amount = amount / numberOfTimesToHalve.add(1);//Calculate the current release amount based on halving times
-        amount = amount / ( 2 ** numberOfTimesToHalve);//Calculate the current release amount based on halving times
-             
-        // }
-        return amount;
-    }
+contract challenge is Owner{
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
+    // ERC20 basic token contract being held
+    IERC20 private   _token;
     
-    /*
-    *
-    *Calculate the number of times the current time period is halved
-    */
-    function getNumberOfTimesToHalve() public view virtual returns (uint256) {
-        if(_firstReleaseTime>0){
-            
-            uint256 numberOfTimesToHalve = 0;
-            if(block.timestamp>_firstReleaseTime){
-                numberOfTimesToHalve =  (block.timestamp.sub(_firstReleaseTime)).div(_halfCycle);//Calculate the number of halved cycles
-            }else{
-                numberOfTimesToHalve =  (_firstReleaseTime.sub(block.timestamp)).div(_halfCycle);//Calculate the number of halved cycles
-
-            }
- 
-            return numberOfTimesToHalve;
-        }
-        else {
-            return 0;
-        }
-    } 
-
-    function getHalfCycle() public view virtual returns (uint256) {
-        return _halfCycle;
-    }
-    function getTimestamp() public view virtual returns (uint256) {
-        return block.timestamp;
+    struct Theme{
+        string idstr;//数字ID
+        address originator;//发布者地址
+        uint256 reward;//总奖励
+        uint256 isCompleteTime;//结束时间
+        bool isComplete;//是否已经完成
+        bool challenge;//主题挑战胜负
+        bool result;//结果
+        uint256 challengeTotal;//目前已经挑战总额
+        bool hasReceive;   // 是否已经领取
+        uint256 profit;//收益
+        uint256 odds;//赔率
+        uint256 count;//参与人数
     }
 
-    function release() public virtual {
-        uint256 releaseTime =  _firstReleaseTime.add(_releasesCount.mul(_releaseInterval));
-        uint256 amount = getCurrentReleaseTokenAmount();
-
-        require(amount > 0, "Release: no tokens to release");
-        require(_firstReleaseTime > 0, "Release: need set First Release Time");
-        require(address(_receivingAddress) !=address(0) , "Release: need set Receiving Address");
-        require(address(_token) != address(0) , "Release: need set Token Address");
-        require(block.timestamp >= releaseTime, "Release: current time is before release time");//Judge whether the release time is up, otherwise it will not be released
-        require(tokenBalance()>=amount,"Insufficient available balance");
        
-
-        _lastReleaseTime = releaseTime;
-        _totalReleased = _totalReleased.add(amount);//Count the total released quantity
-        token().safeTransfer(_receivingAddress, amount);//
-        _releasesCount = _releasesCount.add(1);//Total release times increased by 1
+    struct ChallengerInfo {
+        uint256 amount; // 挑战数量
+        uint256 challengeTime;//挑战时间
+        bool result;  // 主题结果
+        bool challeng;//挑战内容
+        bool challengResult;//是否挑战成功
+        bool hasReceive;   // 是否已经领取
+        bool theme;//主题内容
+        uint256 reward;//奖励
+        uint256 times;//挑战次数
+        string idstr;//数字ID
     }
+
+    mapping(string => Theme) private _challengeTheme;
+    mapping(string => mapping(address =>ChallengerInfo)) private _challengerInfo;
+    mapping(address => uint256) private _lastFaucetTime;
+    mapping(address =>bool) private _roleAddress;
+
+   /**
+     * @dev Deploys a timelock instance that is able to hold the token specified, and will only release it to
+     * `beneficiary_` when {release} is invoked after `releaseTime_`. The release time is specified as a Unix timestamp
+     * (in seconds).
+     */
+    constructor(
+         
+    ) {
+                        
+        //_token = IERC20(0xb8190d84475D09f4324685678A70EF5C2375Ef4b);   
+    }
+
+    //判断token是否已经设置
+     modifier isToken() {
+        // If the first argument of 'require' evaluates to 'false', execution terminates and all
+        // changes to the state and to Ether balances are reverted.
+        // This used to consume all gas in old EVM versions, but not anymore.
+        // It is often a good idea to use 'require' to check if functions are called correctly.
+        // As a second argument, you can also provide an explanation about what went wrong.
+        require(address(_token) != address(0), "No tokens have been set yet");
+        _;
+    }
+
+    modifier isRoleAddress() {
+        // If the first argument of 'require' evaluates to 'false', execution terminates and all
+        // changes to the state and to Ether balances are reverted.
+        // This used to consume all gas in old EVM versions, but not anymore.
+        // It is often a good idea to use 'require' to check if functions are called correctly.
+        // As a second argument, you can also provide an explanation about what went wrong.
+        // require(address(_token) != address(0), "No tokens have been set yet");
+
+        require(_roleAddress[msg.sender] == true, "No permission to publish results!");
+        _;
+    }
+
+    function setToken(address tokenAddress) public {
+        _token = IERC20(tokenAddress);  
+    }
+    //查询指定余额数量
+    function tokenBalance() public isToken view virtual returns (uint256)  {
+        //console.log("the _token is " ,address(_token));
+        uint256 amount = _token.balanceOf(address(this));
+        return amount;
+    }
+
+    function getTokenAddress() public view virtual returns (address) {
+        return address(_token);
+    }
+
+
+    //根据主题ID，获取当前主题信息
+    function getTotalRewardByTheme(string memory themeId_ ) public view returns(Theme  memory theme_){
+        return _challengeTheme[themeId_];
+    }
+
+       //根据主题ID，获取当前主题信息
+    function getTotalRewardByTheme2(string memory themeId_ ) public view returns(Theme memory rheme_){
+        Theme memory rheme =  (_challengeTheme[themeId_]);
+        return rheme;
+    }
+
+
+
+
+        //发起一个主题
+    function initiationTheme(string  memory  themeId_, uint256 amount_) public isToken    {
+        require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated!");
+        require(_challengeTheme[themeId_].originator == address(0),"The themeId Has been initiated!!");
+        require(_challengeTheme[themeId_].odds > 0,"The proposition does not set a probability!");
+        require(_challengeTheme[themeId_].isCompleteTime > 0,"The proposition has no end time set!");
+        require(amount_ > 1000000000000000000,"Publisher token amount 1");
+
+       _token.safeTransferFrom(msg.sender,address(this),amount_);
+       _challengeTheme[themeId_].idstr = themeId_;
+       _challengeTheme[themeId_].reward = amount_;
+       _challengeTheme[themeId_].originator = msg.sender;
+       _challengeTheme[themeId_].challenge = true;
+       _challengeTheme[themeId_].isComplete = false;
+
+    }
+
+
+    //挑战一个主题
+    function challengeTheme(string memory themeId_,uint256 amount_) public isToken  {
+        uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
+        address  publisherAddress = _challengeTheme[themeId_].originator;//发布者
+ 
+        require(publisherAddress != msg.sender,"The initiator cannot challenge his proposition");//发起者不能挑战自己的命题
+        require(_challengeTheme[themeId_].isComplete == false,"The current challenge is over");//当前挑战已经结束了，不能在发起挑战
+        require(_challengeTheme[themeId_].isCompleteTime > block.timestamp,"The current challenge time is over");//挑战时间已经结束，不能在发起挑战
+        require(_challengeTheme[themeId_].challengeTotal.add(amount_) <= _challengeTheme[themeId_].reward.div(odds.sub(1)) ,"The total challenge amount cannot be higher than the maximum available quota");//挑战总额，不能高于最大可用额度
+        require(amount_ >0,"The number of challenges cannot be zero");//挑战金额不能为0
+
+
+
+        _token.safeTransferFrom(msg.sender,address(this),amount_);
+
+        if(_challengerInfo[themeId_][msg.sender].amount == 0){
+            _challengeTheme[themeId_].count += 1;//记录参与人数
+        }
+
+        
+        _challengerInfo[themeId_][msg.sender].amount += amount_;//挑战数量
+        _challengerInfo[themeId_][msg.sender].challengeTime = block.timestamp;//挑战时间
+        _challengerInfo[themeId_][msg.sender].challeng = false;//挑战内容
+        _challengerInfo[themeId_][msg.sender].theme = true;//主题内容
+        _challengerInfo[themeId_][msg.sender].reward +=(amount_.mul(odds));//挑战奖励-挑战内容*倍率
+        _challengerInfo[themeId_][msg.sender].times += 1;//挑战次数
+        _challengerInfo[themeId_][msg.sender].idstr = themeId_;//挑战Id
+        _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额   
+            
+    }
+
+ 
+    //完成挑战，开始结算
+    function CompleteTheChallenge(string memory themeId_,bool result_) public isToken isRoleAddress {
+        //console.log("the _challengeTheme[themeId_].originator is " ,_challengeTheme[themeId_].originator);
+
+        // require(_roleAddress[msg.sender] ==  true ,"No permission to publish results!");
+        //require(_roleAddress[msg.sender] ==  true ,"No permission to publish results");
+
+        require(_challengeTheme[themeId_].originator !=address(0) ,"The current proposition is not initialized!");
+
+        require(_challengeTheme[themeId_].reward >0 ,"The current proposition is not initialized!!");
+
+
+
+        _challengeTheme[themeId_].isComplete = true;
+        _challengeTheme[themeId_].result = result_;
+        uint256 chanllengeAmount = _challengeTheme[themeId_].challengeTotal;//挑战总数量
+        uint256 rewardAmount = _challengeTheme[themeId_].reward;//发布挑战数量
+        uint256 odds = _challengeTheme[themeId_].odds;//赔率
+
+        if(result_){
+            //用户挑战失败，奖励归发布者
+            _challengeTheme[themeId_].profit = chanllengeAmount.add(rewardAmount);
+        }else{
+            //用户挑战成功，奖励归挑战者，如果还有剩余的，则返还给发布者
+            uint256 amount = rewardAmount.sub(chanllengeAmount.mul(odds.sub(1)));
+            _challengeTheme[themeId_].profit = amount;
+        }
+    }
+ 
+    //用户领取奖励
+    function challengerReceiveRewards(string memory themeId_) public isToken   {        
+        uint256 chanllengeAmount = _challengerInfo[themeId_][msg.sender].amount;//挑战数量
+        uint256 reward = _challengerInfo[themeId_][msg.sender].reward;//挑战奖励
+
+        require(_challengerInfo[themeId_][msg.sender].hasReceive == false,"You have received rewards");//已经领取过奖励了
+        require(_challengeTheme[themeId_].isComplete == true,"The challenge is not over");//当前挑战未结束
+        require(chanllengeAmount > 0 ,"The user is not involved in the current challenge");//用户未参与当前挑战
+        require(_challengeTheme[themeId_].result == false,"Challenge failed");//挑战失败
+        // uint256 totalReward = chanllengeAmount.add(reward);
+        uint256 totalReward = reward;
+        _token.safeTransfer(msg.sender,totalReward);
+        _challengerInfo[themeId_][msg.sender].hasReceive = true;//记录，已经领取了奖励
+
+
+    }
+
+    //发布者领取奖励
+    function publisherReceiveRewards(string memory themeId_) public isToken    {
+        address  publisherAddress = _challengeTheme[themeId_].originator;
+        require(publisherAddress == msg.sender,"The current user is not a publisher");//不是发布者，不能领取奖励
+        require(_challengeTheme[themeId_].isComplete == true,"The challenge is not over");//当前挑战未结束
+        require(_challengeTheme[themeId_].hasReceive == false,"You have received rewards");//已经领取过奖励了
+        require(_challengeTheme[themeId_].profit > 0,"You have received rewards");//没有奖励可领取
+
+        uint256 amount= _challengeTheme[themeId_].profit;
+        _token.safeTransfer(publisherAddress,amount);
+        _challengeTheme[themeId_].hasReceive = true;//记录，已经领取了奖励
+    }
+
+
+
+    //发布新闻的时候，提前设置倍率和时间
+    function setTimeAndOdds(string memory themeId_,uint256 closeTime,uint256 odds) public isRoleAddress  {
+        require( _challengeTheme[themeId_].isComplete == false,"The results have been published and the time cannot be modified");//已经发布结果，无法修改时间
+        require( _challengeTheme[themeId_].odds == 0,"The multiplier has already been set and cannot be set again");//已经设置过倍数了，无法再次设置
+        require( _challengeTheme[themeId_].isCompleteTime == 0,"The time has already been set and cannot be set again");//已经设置过时间了，无法再次设置，
+
+        _challengeTheme[themeId_].isCompleteTime = closeTime;
+        _challengeTheme[themeId_].odds = odds;
+    }
+
+    //查询用户参与指定主题挑战信息
+    function getExchangeInfo(string memory themeId_,address chanllenger_) public view returns( ChallengerInfo memory  ) {
+        ChallengerInfo memory info = _challengerInfo[themeId_][chanllenger_];//挑战数量
+        return info;
+    }
+
+    //设置可发布结果的地址 - 需要管理员权限
+    function addRoleAddress(address roleAddress) public isOwner {
+        _roleAddress[roleAddress] = true;
+    }
+
+    //取消地址发布结果的权限 - 需要管理员权限
+    function cancelRoleAddress(address roleAddress) public isOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    //设置主题master信息-用于修改合约之后的数据迁移
+    function setMasterData(string  memory  themeId_, uint256    amount_,uint256 endTime,uint256 odds,address masterAddress) public isOwner{
+        require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated");
+        require(amount_ > 1000000000000000000,"Publisher token amount 1");
+        require(odds >= 2,"The minimum value of magnification is 2");
+
+
+       _challengeTheme[themeId_].idstr = themeId_;
+       _challengeTheme[themeId_].reward = amount_;
+       _challengeTheme[themeId_].originator = masterAddress;
+       _challengeTheme[themeId_].isCompleteTime = endTime;
+       _challengeTheme[themeId_].challenge = true;
+       _challengeTheme[themeId_].isComplete = false;
+       _challengeTheme[themeId_].odds = odds;
+    }
+
+    //设置主题challenger信息-用于修改合约之后的数据迁移
+    function setChallengerData(string memory themeId_,uint256 amount_,address challengerAddress) public isOwner{
+        uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
+        address  publisherAddress = _challengeTheme[themeId_].originator;//发布者
+ 
+        require(publisherAddress != challengerAddress,"The initiator cannot challenge his proposition");//发起者不能挑战自己的命题
+        //require(_challengeTheme[themeId_].isComplete == false,"The current challenge is over");//当前挑战已经结束了，不能在发起挑战
+        //require(_challengeTheme[themeId_].isCompleteTime > block.timestamp,"The current challenge time is over");//挑战时间已经结束，不能在发起挑战
+        require(_challengeTheme[themeId_].challengeTotal.add(amount_) <= _challengeTheme[themeId_].reward.div(odds.sub(1)) ,"The total challenge amount cannot be higher than the maximum available quota");//挑战总额，不能高于最大可用额度
+        require(amount_ >0,"The number of challenges cannot be zero");//挑战金额不能为0
+
+
+
+
+
+        if(_challengerInfo[themeId_][challengerAddress].amount == 0){
+            _challengeTheme[themeId_].count += 1;//记录参与人数
+        }
+
+        
+        _challengerInfo[themeId_][challengerAddress].amount += amount_;//挑战数量
+        _challengerInfo[themeId_][challengerAddress].challengeTime = block.timestamp;//挑战时间
+        _challengerInfo[themeId_][challengerAddress].challeng = false;//挑战内容
+        _challengerInfo[themeId_][challengerAddress].theme = true;//主题内容
+        _challengerInfo[themeId_][challengerAddress].reward +=(amount_.mul(odds));//挑战奖励-挑战内容*倍率
+        _challengerInfo[themeId_][challengerAddress].times += 1;//挑战次数
+        _challengerInfo[themeId_][challengerAddress].idstr = themeId_;//挑战Id
+        _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额  
+    }
+
+
+   
 }

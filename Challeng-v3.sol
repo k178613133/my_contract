@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./console.sol";
+// import "./console.sol";
 
 interface IERC20 {
     function totalSupply() external view returns (uint256);
@@ -634,7 +634,7 @@ contract challenge is Owner{
     }
     //查询指定余额数量
     function tokenBalance() public isToken view virtual returns (uint256)  {
-        console.log("the _token is " ,address(_token));
+        // console.log("the _token is " ,address(_token));
         uint256 amount = _token.balanceOf(address(this));
         return amount;
     }
