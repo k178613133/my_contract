@@ -538,9 +538,8 @@ contract Lock   {
  
 
 
-    uint256 private _duration=1 * 60  * 180;// 1 * 60 * 60 *24 * 180;//Locked for 180 days
-    uint256 private _interval = 1 * 60 *  1 ;// 1 * 60 * 60 *24 ;//Release cycle 1 day
-    uint256 private _decimals = 18;
+    uint256 private _duration= 1 * 60 * 60 *24 * 180;//Locked for 180 days
+    uint256 private _interval = 1 * 60 * 60 *24 ;//Release cycle 1 day
     uint256 private _totalReleased ;
     
     address private _owner;//admin address
@@ -622,12 +621,6 @@ contract Lock   {
      */
     function token() public view virtual returns (IERC20) {
         return _token;
-    }
- 
- 
-
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
     }
 
  
