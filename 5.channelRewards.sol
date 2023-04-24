@@ -536,11 +536,10 @@ contract ChannelRewards   {
     // ERC20 basic token contract being held
     IERC20 private  _token;
  
-    uint256 private _decimals = 18;
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
-
-    address private _rewardAddress;//剩余奖励，发送到奖励池子
+    mapping(address =>bool) private _roleAddress;//Allocate permission address information.
+    address private _rewardAddress;//The remaining rewards will be sent to the reward pool
 
     constructor() {
         _owner = msg.sender;
@@ -550,7 +549,12 @@ contract ChannelRewards   {
       * @dev Throws if called by any account other than the owner.
       */
     modifier onlyOwner() {
-        require(msg.sender == _owner);
+        require(msg.sender == _owner,"No  permission!");
+        _;
+    }
+
+    modifier onlyRoleAddress() {
+        require(_roleAddress[msg.sender] == true, "No role permission!");
         _;
     }
 
@@ -561,12 +565,24 @@ contract ChannelRewards   {
         _token = IERC20(tokenAddress);
     }
  
-
- 
     function changeOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
 
+
+    //Set assignment permissions - requires administrator permissions
+    function addRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = true;
+    }
+
+    //Unassign permissions - requires administrator permissions
+    function cancelRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    function isRoleAddress(address addres) public view virtual returns (bool) {
+        return _roleAddress[addres];
+    }
 
     /**
      * @dev Returns the token being held.
@@ -576,10 +592,6 @@ contract ChannelRewards   {
     }
  
 
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
-    }
-
     function getTotalReleased() public view virtual returns (uint256) {
         return _totalReleased;
     }
@@ -588,7 +600,7 @@ contract ChannelRewards   {
         return _rewardAddress;
     }
 
-    function setRewardAddress(address rewardAddress_ ) public {
+    function setRewardAddress(address rewardAddress_ ) public onlyOwner {
          _rewardAddress = rewardAddress_;
     }
 
@@ -601,9 +613,8 @@ contract ChannelRewards   {
         return amount;
     }
 
-   //分配给地址发放
-    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyOwner {
-        // require(amount > 0, "Release: no tokens to release");
+   //Distribute tokens to the specified address.
+    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyRoleAddress {
       
         require(address(_token) != address(0) , "Release: need set Token Address");
         require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
@@ -618,22 +629,17 @@ contract ChannelRewards   {
 
     
         for (uint256 i = 0; i < recipients.length; i++){
-            // token().safeTransfer(recipients[i], values[i]);//Start releasing to the specified ore pool
-            //token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
-            token().safeTransfer(recipients[i],values[i]);//
-
+            token().safeTransfer(recipients[i],values[i]);
             _totalReleased = _totalReleased + values[i];
         }
     }
 
-    //当天剩余，发送到奖励池中
-    function release() public onlyOwner{
-        uint256 amount = tokenBalance();//当前合约地址剩余奖励
+    //The remaining amount on the same day will be sent to the reward pool.
+    function release() public onlyRoleAddress{
+        uint256 amount = tokenBalance();////The remaining reward amount in the current contract address.
         require(amount>0,"No quantity to send");
         require(getRewardAddress() != address(0),"Release: need set Reward Address");
-        //token().safeTransferFrom(address(this),getRewardAddress(),amount);//将剩余金额，发送到奖励池中
         token().safeTransfer(getRewardAddress(),amount);
-
     }
 
 }

@@ -538,7 +538,7 @@ contract Release   {
  
 
 
-    address private _receivingAddress;
+    address private _distributionAddress;
     uint256 private _lastReleaseTime;
     uint256 private _decimals = 18;
     uint256 private _totalReleased ;//Record total released quantity
@@ -546,10 +546,9 @@ contract Release   {
     address private _owner;//admin address
 
     uint256 private _releaseAmount = 7200 * 10 ** _decimals;//Daily release quantity, initial 7200, release by half according to cycle
-    uint256 private _halfCycle = 1 * 60 * 60;// 1 * 60 * 60 * 24 * 1458 ;//Half cycle
-    uint256 private _releaseInterval =1* 60 * 15;// 1* 60 * 60 * 24;//Every release interval
+    uint256 private _halfCycle =1 * 60 * 60 * 24 * 1458 ;//Half cycle
+    uint256 private _releaseInterval =1 * 60 * 60 * 24;//Every release interval
     uint256 private _releasesCount = 0;//Record the total number of releases 
-  
 
     constructor() {
         _owner = msg.sender;
@@ -559,7 +558,7 @@ contract Release   {
       * @dev Throws if called by any account other than the owner.
       */
     modifier onlyOwner() {
-        require(msg.sender == _owner);
+        require(msg.sender == _owner,"No  permission!");
         _;
     }
 
@@ -572,8 +571,12 @@ contract Release   {
     /*
      *@Set the address of the receiving token
      */
-    function setReceivingAddress(address receivingAddress) public virtual onlyOwner {
-        _receivingAddress = address(receivingAddress);
+    function setDistributionAddress(address distributionAddress) public virtual onlyOwner {
+        _distributionAddress = address(distributionAddress);
+    }
+
+    function getReceivingAddress() public view virtual returns (address) {
+        return _distributionAddress;
     }
 
     /*
@@ -587,7 +590,6 @@ contract Release   {
     function changeOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
-
 
     /**
      * @dev Returns the token being held.
@@ -609,6 +611,9 @@ contract Release   {
         return _totalReleased;
     }
 
+    function getReleaseInterval()  public view virtual returns (uint256) {
+        return _releaseInterval;
+    }
  
     function getReleasesCount() public view virtual returns (uint256) {
         return _releasesCount;
@@ -677,7 +682,7 @@ contract Release   {
 
         require(amount > 0, "Release: no tokens to release");
         require(_firstReleaseTime > 0, "Release: need set First Release Time");
-        require(address(_receivingAddress) !=address(0) , "Release: need set Receiving Address");
+        require(getReceivingAddress() !=address(0) , "Release: need set Receiving Address");
         require(address(_token) != address(0) , "Release: need set Token Address");
         require(block.timestamp >= releaseTime, "Release: current time is before release time");//Judge whether the release time is up, otherwise it will not be released
         require(tokenBalance()>=amount,"Insufficient available balance");
@@ -685,7 +690,7 @@ contract Release   {
 
         _lastReleaseTime = releaseTime;
         _totalReleased = _totalReleased.add(amount);//Count the total released quantity
-        token().safeTransfer(_receivingAddress, amount);//
+        token().safeTransfer(getReceivingAddress(), amount);//
         _releasesCount = _releasesCount.add(1);//Total release times increased by 1
     }
 }

@@ -727,16 +727,8 @@ contract challenge is Owner{
  
     //完成挑战，开始结算
     function CompleteTheChallenge(string memory themeId_,bool result_) public isToken isRoleAddress {
-        //console.log("the _challengeTheme[themeId_].originator is " ,_challengeTheme[themeId_].originator);
-
-        // require(_roleAddress[msg.sender] ==  true ,"No permission to publish results!");
-        //require(_roleAddress[msg.sender] ==  true ,"No permission to publish results");
-
         require(_challengeTheme[themeId_].originator !=address(0) ,"The current proposition is not initialized!");
-
         require(_challengeTheme[themeId_].reward >0 ,"The current proposition is not initialized!!");
-
-
 
         _challengeTheme[themeId_].isComplete = true;
         _challengeTheme[themeId_].result = result_;

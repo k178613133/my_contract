@@ -8,22 +8,21 @@
 
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
-import "./console.sol";
-//需要调用的外部接口-挑战合约
+//External interfaces that need to be called - Challenge Contract
 interface ChallengContract {
     struct Theme{
-        string idstr;//数字ID
-        address originator;//发布者地址
-        uint256 reward;//总奖励
-        uint256 isCompleteTime;//结束时间
-        bool isComplete;//是否已经完成
-        bool challenge;//主题挑战胜负
-        bool result;//结果
-        uint256 challengeTotal;//目前已经挑战总额
-        bool hasReceive;   // 是否已经领取
-        uint256 profit;//收益
-        uint256 odds;//赔率
-        uint256 count;//参与人数
+        string idstr;//Digital ID
+        address originator;//Publisher Address
+        uint256 reward;//Total rewards
+        uint256 isCompleteTime;//End Time
+        bool isComplete;//Has it been completed
+        bool challenge;//Theme Challenge Victory
+        bool result;//Theme Challenge Results
+        uint256 challengeTotal;//Current Total Challenge Amount
+        bool hasReceive;   // Has it been claimed
+        uint256 profit;//Earnings
+        uint256 odds;//odds
+        uint256 count;//Number of Participants
     }
     function getTotalRewardByTheme(string memory themeId_ ) external   view returns(Theme  memory theme_ );
 }
@@ -562,13 +561,12 @@ contract MasterPool   {
     IERC20 private  _token;
 
 
-    address private _contractAddrss;//挑战合约地址
-    address private _lockContractAddress;//锁仓合约地址
-    address private _tokenAddress;//token合约地址
-    uint256 private _decimals = 18;
+    address private _contractAddrss;//Challenge contract address
+    address private _lockContractAddress;//Lock contract address
+    address private _tokenAddress;//Token contract address
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
-
+    mapping(address =>bool) private _roleAddress;//Allocate permission address information.
    
 
     constructor() {
@@ -580,9 +578,15 @@ contract MasterPool   {
       * @dev Throws if called by any account other than the owner.
       */
     modifier onlyOwner() {
-        require(msg.sender == _owner);
+        require(msg.sender == _owner,"No  permission!");
         _;
     }
+
+    modifier onlyRoleAddress() {
+        require(_roleAddress[msg.sender] == true, "No role permission!");
+        _;
+    }
+
 
     /*
      *@Set the token address that needs to be released periodically
@@ -599,6 +603,31 @@ contract MasterPool   {
         _owner = newOwner;
     }
 
+    //Set Challenge Contract Address
+    function setChallengContract(address contractAddrss) public onlyOwner {
+        _contractAddrss = contractAddrss;
+    }
+    
+    //Set lock contract address
+    function setLockContractAddress(address lockContractAddress) public onlyOwner {
+        _lockContractAddress = lockContractAddress;
+    }
+
+    //Set assignment permissions - requires administrator permissions
+    function addRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = true;
+    }
+
+    //Unassign permissions - requires administrator permissions
+    function cancelRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    function isRoleAddress(address addres) public view virtual returns (bool) {
+        return _roleAddress[addres];
+    }
+
+
 
     /**
      * @dev Returns the token being held.
@@ -607,11 +636,6 @@ contract MasterPool   {
         return _token;
     }
  
- 
-
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
-    }
 
  
     function getTotalReleased() public view virtual returns (uint256) {
@@ -629,22 +653,16 @@ contract MasterPool   {
     }
 
 
-    //设置挑战合约地址
-    function setChallengContract(address contractAddrss) public {
-        _contractAddrss = contractAddrss;
-    }
+
     
-    //查看挑战合约地址
+
+    //View Challenge Contract Address
     function getContractAddrss() public view returns(address){
         return _contractAddrss;
     }
 
-    //设置锁仓合约地址
-    function setLockContractAddress(address lockContractAddress) public {
-        _lockContractAddress = lockContractAddress;
-    }
-    
-    //查看锁仓合约地址
+
+    //View lock contract address
     function getLockContractAddress() public view returns(address){
         return _lockContractAddress;
     }
@@ -653,8 +671,8 @@ contract MasterPool   {
         return block.timestamp;
     }
 
-    //调用挑战合约，查询新闻ID，对应的mastger地址，锁仓半年，可以参与master和参与挑战
-    function sendMasterTokenLock(string[] memory themeId,uint256[] memory values) public  onlyOwner  (){
+    //Call the challenge contract, query the news ID, corresponding master address, lock-up for six months, and be able to participate in the master and challenge
+    function sendMasterTokenLock(string[] memory themeId,uint256[] memory values) public  onlyRoleAddress  (){
         require(themeId.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
         require(address(token()) != address(0) , "Release: need set Token Address");
         require(address(getContractAddrss()) != address(0) , "Release: need set Challeng Contract Address");
@@ -663,32 +681,25 @@ contract MasterPool   {
         for(uint256 i=0;i<values.length;i++){
             sendTotal = sendTotal + values[i];
         }
-
         require(tokenBalance() >= sendTotal , "Release: Insufficient total amount available for distribution");
-
         ChallengContract challengContract = ChallengContract(getContractAddrss());
         LockContract lockContract = LockContract(getLockContractAddress());
         for(uint256 i=0;i<themeId.length;i++){
             ChallengContract.Theme memory themeInfo  =  challengContract.getTotalRewardByTheme(themeId[i]);
             address receiveAddress =  themeInfo.originator;
             uint256 receiveAmount =  values[i];
-            
+
             if(address(receiveAddress) != address(0)){
-                // token().safeTransferFrom(address(this),address(_lockContractAddress),receiveAmount);
-                console.log("the receiveAmount is ",receiveAmount);
-                console.log("the receiveAddress is ",receiveAddress);
-                console.log("the themeId[i] is ",themeId[i]);
                 lockContract.lock(receiveAmount, receiveAddress, themeId[i]);
                 token().safeTransfer(address(getLockContractAddress()),receiveAmount);
-
                 _totalReleased = _totalReleased + receiveAmount;
             }
         }
     }
 
 
-    //分配到指定地址
-    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual {
+    //Assign to specified address
+    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyRoleAddress {
         // require(amount > 0, "Release: no tokens to release");
         require(address(_token) != address(0) , "Release: need set Token Address");
         require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
@@ -702,19 +713,18 @@ contract MasterPool   {
         require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
 
         for (uint256 i = 0; i < recipients.length; i++){
-            // token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
             token().safeTransfer(recipients[i],values[i]);
             _totalReleased = _totalReleased + values[i];
         }
     }
 
-    //销毁指定数量Token
-    function burn(uint256 burnAmount ) public onlyOwner{
+    //Destroy a specified amount of tokens.
+    function burn(uint256 burnAmount ) public onlyRoleAddress{
         require(address(_tokenAddress) != address(0) , "Release: need set Token Address");
         require(burnAmount > 0 , "No quantity to send");
 
         TokenContract tokenContract = TokenContract(_tokenAddress);
-        tokenContract.burn(burnAmount);//销毁
+        tokenContract.burn(burnAmount);//Destroy
     }
 
     

@@ -539,9 +539,9 @@ contract OracleRewards   {
 
 
    
-    uint256 private _decimals = 18;
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
+    mapping(address =>bool) private _roleAddress;//Allocate permission address information.
 
  
 
@@ -557,6 +557,10 @@ contract OracleRewards   {
         _;
     }
 
+    modifier onlyRoleAddress() {
+        require(_roleAddress[msg.sender] == true, "No role permission!");
+        _;
+    }
     /*
      *@Set the token address that needs to be released periodically
      */
@@ -570,6 +574,20 @@ contract OracleRewards   {
         _owner = newOwner;
     }
 
+    //Set assignment permissions - requires administrator permissions
+    function addRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = true;
+    }
+
+    //Unassign permissions - requires administrator permissions
+    function cancelRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    function isRoleAddress(address addres) public view virtual returns (bool) {
+        return _roleAddress[addres];
+    }
+
 
     /**
      * @dev Returns the token being held.
@@ -579,11 +597,6 @@ contract OracleRewards   {
     }
  
 
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
-    }
-
- 
     function getTotalReleased() public view virtual returns (uint256) {
         return _totalReleased;
     }
@@ -597,10 +610,9 @@ contract OracleRewards   {
         return amount;
     }
 
- 
 
-   //分配给地址发放
-    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyOwner {
+    //The remaining amount on the same day will be sent to the reward pool.
+    function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual onlyRoleAddress {
       
         require(address(_token) != address(0) , "Release: need set Token Address");
         require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
@@ -612,9 +624,7 @@ contract OracleRewards   {
 
     
         for (uint256 i = 0; i < recipients.length; i++){
-            token().safeTransfer(recipients[i], values[i]);//Start releasing to the specified ore pool
-            // token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
-
+            token().safeTransfer(recipients[i], values[i]);
             _totalReleased = _totalReleased + values[i];
         }
     }

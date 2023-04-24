@@ -538,32 +538,32 @@ contract Lock   {
  
 
 
-    uint256 private _duration= 1 * 60 * 60 *24 * 180;//锁仓时长 180天
-    uint256 private _interval = 1 * 60 *  5 ;//释放周期 测试 10分钟  1 * 60 * 60 *24 ;//释放周期 1天
+    uint256 private _duration=1 * 60  * 180;// 1 * 60 * 60 *24 * 180;//Locked for 180 days
+    uint256 private _interval = 1 * 60 *  1 ;// 1 * 60 * 60 *24 ;//Release cycle 1 day
     uint256 private _decimals = 18;
     uint256 private _totalReleased ;
     
     address private _owner;//admin address
-    address private _masterRewardAddress;//master奖池合约地址
+    address private _masterRewardAddress;//Master Award Pool Contract Address
 
     struct LockInfo {
-        uint256 amount; // 锁仓数量
-        uint256 createTime;//锁仓时间
-        uint256 releaseTime;// 到期时间
-        address userAddr;  // 锁仓地址
-        uint256 interval;// 释放间隔 1天
-        string themeId;//新闻ID
-        uint256 availableReceive;//可领取数量
-        uint256 alreadyReceive;//已经领取数量
-        uint256 receiveTimes;//总领取次数
-        uint256 duration;//锁仓时长
+        uint256 amount; // Number of locked warehouses
+        uint256 createTime;//Lockout time
+        uint256 releaseTime;// Expiration time
+        address userAddr;  // Lock address
+        uint256 interval;// Release interval of 1 day
+        string themeId;//News ID
+        uint256 availableReceive;//Quantity available for collection
+        uint256 alreadyReceive;//Received quantity
+        uint256 receiveTimes;//Total Collection Times
+        uint256 duration;//Lockout duration
     }
 
-    mapping(address => uint256) private _lockTotal;//记录账户的锁仓总量
-    mapping(address => uint256) private _receiveTotal;//记录账户的领取总量
-    mapping(address => uint256) private _receiveTimes;//记录账户的领取次数
+    mapping(address => uint256) private _lockTotal;//Record the total amount of locked accounts
+    mapping(address => uint256) private _receiveTotal;//Record the total amount claimed by the account
+    mapping(address => uint256) private _receiveTimes;//Record the number of times the account has been claimed
 
-    mapping(string => mapping(address =>LockInfo)) private _userLockInfo;//记录用户每个命题的锁仓信息
+    mapping(string => mapping(address =>LockInfo)) private _userLockInfo;//Record the lock information for each proposition of the user
 
     
 
@@ -576,12 +576,12 @@ contract Lock   {
       * @dev Throws if called by any account other than the owner.
       */
     modifier onlyOwner() {
-        require(msg.sender == _owner);
+        require(msg.sender == _owner,"No  permission!");
         _;
     }
 
     modifier onlyMasterReward() {
-        require(msg.sender == _masterRewardAddress);
+        require(msg.sender == _masterRewardAddress,"No Role permission!");
         _;
     }
     /*
@@ -635,7 +635,7 @@ contract Lock   {
         return _totalReleased;
     }
 
-    //查询用户指定命题的锁仓信息
+    //Query lock information for user specified propositions
     function getUserLockInfo(string memory themeId_,address userAddres_) public view virtual returns (LockInfo memory){
         return _userLockInfo[themeId_][userAddres_];
     }
@@ -655,47 +655,53 @@ contract Lock   {
     }
 
 
-    //锁仓函数
+    //Lockdown function
     function lock(uint256 amount_,address userAddress_, string memory themeId_) public onlyMasterReward {
         require(amount_  >0,"The number of locked warehouses needs to be greater than 0" );
         require(address(userAddress_)  !=address(0),"Incorrect user address" );
         require(_interval  >0,"Release cycle needs to be greater than 0" );
         require(_duration  >0,"The total lock duration needs to be greater than 0" );
 
-        _userLockInfo[themeId_][userAddress_].amount = amount_;
-        _userLockInfo[themeId_][userAddress_].createTime = block.timestamp;
+        _userLockInfo[themeId_][userAddress_].amount =  amount_;
+        if(_userLockInfo[themeId_][userAddress_].createTime == 0){
+            _userLockInfo[themeId_][userAddress_].createTime = block.timestamp;
+        }
         _userLockInfo[themeId_][userAddress_].releaseTime = block.timestamp+_duration;
         _userLockInfo[themeId_][userAddress_].userAddr = userAddress_;
         _userLockInfo[themeId_][userAddress_].interval = _interval;
         _userLockInfo[themeId_][userAddress_].themeId = themeId_;
         _userLockInfo[themeId_][userAddress_].duration = _duration;
 
-        _lockTotal[userAddress_] = _lockTotal[userAddress_] + amount_;
+        _lockTotal[userAddress_] =  amount_;
       
     }
 
     
 
-    //释放函数
+    //Release function
     function release(string memory themeId_) public  {
         
         require(_lockTotal[msg.sender]  >0,"There is no available limit to claim!" );
         require(_userLockInfo[themeId_][msg.sender].amount  >0,"There is no available limit to claim!!" );
 
         LockInfo memory userLockInfo = _userLockInfo[themeId_][msg.sender];
-        uint256 tims =  (block.timestamp - userLockInfo.createTime)/userLockInfo.interval;//计算需要释放的次数
-        uint256 amount =  userLockInfo.amount/userLockInfo.duration;//计算每次释放数量
-        uint256 totalAmount =  tims * amount;//计算可以释放的总量
+        uint256 tims =  (block.timestamp - userLockInfo.createTime)/userLockInfo.interval;//Calculate the number of releases required
+
+        //    uint256 private _duration= 1 * 60 * 60 *24 * 180;//Locked for 180 days
+    // uint256 private _interval = 1 * 60 *  1 ;// 1 * 60 * 60 *24 ;//Release cycle 1 day
+
+
+        uint256 amount =  userLockInfo.amount.div(userLockInfo.duration.div(userLockInfo.interval));//Calculate the quantity of each release
+        uint256 totalAmount =  tims * amount;//Calculate the total amount that can be released
         uint256 availableReceive = totalAmount - userLockInfo.alreadyReceive;
         require(availableReceive>0,"There is currently no claim available");
-        _token.safeTransfer(msg.sender,availableReceive);//下发用户释放奖励
-        // token().safeTransfer(userAddr,availableReceive);
-        _userLockInfo[themeId_][msg.sender].alreadyReceive += availableReceive;//记录用户对应新闻的总领取数量
-        _userLockInfo[themeId_][msg.sender].receiveTimes += 1;//记录用户对应新闻的总领取次数
-        _totalReleased += availableReceive;//合约所有用户领取代币总量
+        _token.safeTransfer(msg.sender,availableReceive);//Distribute user release rewards
+        _userLockInfo[themeId_][msg.sender].alreadyReceive += availableReceive;//Record the total number of news received by users
+        _userLockInfo[themeId_][msg.sender].receiveTimes += 1;//Record the total number of times users receive corresponding news
+        _totalReleased += availableReceive;//The total amount of tokens received by all users in the contract
         
-        _receiveTotal[msg.sender] += availableReceive;//记录用户总领取量
-        _receiveTimes[msg.sender] += 1;//记录用户总领取次数
+        _receiveTotal[msg.sender] += availableReceive;//Record the total amount of user purchases
+        _receiveTimes[msg.sender] += 1;//Record the total number of times users have received items
 
 
 

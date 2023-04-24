@@ -9,11 +9,17 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.6;
 
-// import "./console.sol";
 
-//需要调用的外部接口-释放合约，查询每日释放数量
+//External interface to be called - release contract, query daily release quantity, query last release time, query release interval
+
 interface TokenReleaseContract {
-    function getCurrentReleaseTokenAmount() external   returns (uint256);
+
+    function lastReleaseTime() external returns (uint256);//Query the total release contract and the last release time
+
+    function getReleaseInterval()  external returns (uint256);//Query total release contracts, release intervals
+
+    function getCurrentReleaseTokenAmount()  external returns (uint256);//Query total release contracts and daily release quantities
+
 }
 
 interface IERC20 {
@@ -543,21 +549,23 @@ contract Distribution   {
 
 
 
-    address private _releaseContractAddress;//释放合约地址
-    address private _masterRewardsAddress;//master奖励合约地址
-    address private _funPoolAddress;//基金池合约地址
-    address private _channelRewardsAddress;//渠道奖励合约地址
-    address private _oracleRewardsAddress;//预言机奖励合约地址
+    address private _releaseContractAddress;//Release Contract Address
+    address private _masterRewardsAddress;//Master Reward Contract Address
+    address private _funPoolAddress;//Fund Pool Contract Address
+    address private _channelRewardsAddress;//Channel reward contract address
+    address private _oracleRewardsAddress;//Address of oracle machine reward contract
 
-    uint256 private _masterRewardScale = 80;//master奖励池，分配比例
-    uint256 private _funPoolScale = 5;//基金池，分配比例
-    uint256 private _channelRewardsScale = 5;//渠道奖励，分配比例
-    uint256 private _oracleRewardsScale = 10;//预言机奖励，分配比例
+    uint256 private _masterRewardScale = 80;//Master reward pool, allocation ratio
+    uint256 private _funPoolScale = 5;//Fund pool, allocation ratio
+    uint256 private _channelRewardsScale = 5;//Channel rewards, distribution ratio
+    uint256 private _oracleRewardsScale = 10;//Oracle machine rewards, distribution ratio
 
+   
 
-    uint256 private _decimals = 18;
+    
     uint256 private _totalReleased ;//Record total released quantity
     address private _owner;//admin address
+    mapping(address =>bool) private _roleAddress;
 
    
 
@@ -570,47 +578,77 @@ contract Distribution   {
       * @dev Throws if called by any account other than the owner.
       */
     modifier onlyOwner() {
-        require(msg.sender == _owner);
+        require(msg.sender == _owner,"No  permission!");
+        _;
+    }
+
+    modifier onlyRoleAddress() {
+        require(_roleAddress[msg.sender] == true, "No role permission!");
         _;
     }
 
     /*
-     *@Set the token address that needs to be released periodically
+     *@Set the token address that needs to be released periodically - requires administrator permissions
      */
     function setTokenAddress(address tokenAddress ) public virtual   onlyOwner {
         _token = IERC20(tokenAddress);
     }
-   
 
- 
-
+    //Set administrator permissions - requires administrator permissions
     function changeOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
+ 
+    //Set the master prize pool contract address - requires administrator permissions
+    function setMasterRewardsAddress(address masterRewardsAddress_) public onlyOwner {
+        _masterRewardsAddress = masterRewardsAddress_;
+    }
 
+    //Set Fund Pool Contract Address - requires administrator permissions
+    function setFunPoolAddress(address funPoolAddress) public onlyOwner {
+        _funPoolAddress = funPoolAddress;
+    }
+    
+    //Set channel reward contract address - requires administrator permissions
+    function setChannelRewardsAddress(address channelRewardsAddress) public onlyOwner {
+        _channelRewardsAddress = channelRewardsAddress;
+    }
+    
+    //Set oracle machine reward contract address - requires administrator permissions
+    function setOracleRewardsAddress(address oracleRewardsAddress) public  onlyOwner {
+        _oracleRewardsAddress = oracleRewardsAddress;
+    }
+    
+    //Set Release Contract Address - requires administrator permissions
+    function setReleaseContractAddress(address releaseContractAddress) public onlyOwner {
+        _releaseContractAddress = releaseContractAddress;
+    }
+    
+    //Set assignment permissions - requires administrator permissions
+    function addRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = true;
+    }
 
-    /**
-     * @dev Returns the token being held.
-     */
+    //Unassign permissions - requires administrator permissions
+    function cancelRoleAddress(address roleAddress) public onlyOwner {
+        _roleAddress[roleAddress] = false;
+    }
+
+    function isRoleAddress(address addres) public view virtual returns (bool) {
+        return _roleAddress[addres];
+    }
+    
+    //Query the Token contract address that needs to be assigned
     function token() public view virtual returns (IERC20) {
         return _token;
     }
  
- 
-
-    function decimals() public view virtual returns (uint256) {
-        return _decimals;
-    }
-
- 
+    //Query the total allocated quantity of the current contract
     function getTotalReleased() public view virtual returns (uint256) {
         return _totalReleased;
     }
 
- 
-  
- 
-
+    //Query the remaining allocatable total amount of the current contract
     function tokenBalance() public view virtual returns (uint256) {
         if(address(token()) == address(0)){
             return 0;
@@ -618,156 +656,114 @@ contract Distribution   {
         uint256 amount = token().balanceOf(address(this));
         return amount;
     }
-
     
- 
-    //设置master奖池合约地址
-    function setMasterRewardsAddress(address masterRewardsAddress_) public {
-        _masterRewardsAddress = masterRewardsAddress_;
-    }
-    
-    //查看master奖池合约地址
+    //Query the master prize pool contract address
     function getMasterRewardsAddress() public view returns(address){
         return _masterRewardsAddress;
     }
 
 
-    //设置基金池合约地址
-    function setFunPoolAddress(address funPoolAddress) public {
-        _funPoolAddress = funPoolAddress;
-    }
-    
-    //查看基金池合约地址
+    //Query Fund Pool Contract Address
     function getFunPoolAddress() public view returns(address){
         return _funPoolAddress;
     }
 
-    //设置渠道奖励合约地址
-    function setChannelRewardsAddress(address channelRewardsAddress) public {
-        _channelRewardsAddress = channelRewardsAddress;
+
+    //Query oracle machine reward contract address
+    function getOracleRewardsAddress() public view returns(address){
+        return _oracleRewardsAddress;
     }
-    
-    //查看渠道奖励合约地址
+
+    //Query channel reward contract address
     function getChannelRewardsAddress() public view returns(address){
         return _channelRewardsAddress;
     }
 
 
-    
-    //设置预言机奖励合约地址
-    function setOracleRewardsAddress(address oracleRewardsAddress) public {
-        _oracleRewardsAddress = oracleRewardsAddress;
-    }
-    
-    //查看预言机奖励合约地址
-    function getOracleRewardsAddress() public view returns(address){
-        return _oracleRewardsAddress;
-    }
-
-
-
-
-
-    //设置释放合约地址
-    function setReleaseContractAddress(address releaseContractAddress) public {
-        _releaseContractAddress = releaseContractAddress;
-    }
-    
-    //查看释放合约地址
+    //Query release contract address
     function getReleaseContractAddress() public view returns(address){
         return _releaseContractAddress;
     }
 
+    //Query the current contract system time
     function getTimestamp() public view virtual returns (uint256) {
         return block.timestamp;
     }
 
- 
-    //按照规则，每天分配80%给Master奖励地址
-    function distributionToMasterRewardsAddress() public {
+
+
+    //Token total allocation method - Assign permissions
+    function distributionAll() public onlyRoleAddress{
+        require(getReleaseContractAddress() != address(0),"Release: need set release  Address");
+        TokenReleaseContract challengContract = TokenReleaseContract(getReleaseContractAddress());
+        uint256 releaseTime =  challengContract.lastReleaseTime();
+        releaseTime = releaseTime + challengContract.getReleaseInterval();
+        require(block.timestamp >= releaseTime, "Release: current time is before release time");
+
+
+        distributionToMasterRewardsAddress();
+        distributionToFunPoolAddress();
+        distributionToChannelRewardsAddress();
+        distributionToOracleRewardsAddress();
+
+    }
+
+    //According to the rules, allocate 80% of the reward address to the Master every day - Assign permissions
+    function distributionToMasterRewardsAddress() private onlyRoleAddress {
         require(address(token()) != address(0) , "Release: need set Token Address");
         require(address(getMasterRewardsAddress()) != address(0) , "Release: need set master rewards Address");
-        // TokenReleaseContract challengContract = TokenReleaseContract(getFunPoolAddress());
-        uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
+        uint256 amount = this.getCurrentReleaseTokenAmount();
         amount = amount * _masterRewardScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!");
-        // token().safeTransferFrom(address(this),address(getMasterRewardsAddress()),amount);//发送到master奖励地址
         token().safeTransfer(getMasterRewardsAddress(), amount);//
 
         _totalReleased = _totalReleased + amount;
 
     }
 
-    //按照规则，每天分配5%给基金
-    function distributionToFunPoolAddress() public {
+    //According to the rules, allocate 5% to the fund every day - Assign permissions
+    function distributionToFunPoolAddress() private onlyRoleAddress {
         require(address(token()) != address(0) , "Release: need set Token Address");
         require(address(getFunPoolAddress()) != address(0) , "Release: need set fun pool Address");
-        // TokenReleaseContract challengContract = TokenReleaseContract(getFunPoolAddress());
-        uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
+        uint256 amount = this.getCurrentReleaseTokenAmount();
         amount = amount * _funPoolScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!");
-        // token().safeTransferFrom(address(this),address(getFunPoolAddress()),amount);//发送到基金池地址
-        token().safeTransfer(getFunPoolAddress(), amount);//
+        token().safeTransfer(getFunPoolAddress(), amount);
 
         _totalReleased = _totalReleased + amount;
 
     }
 
-    //按照规则，每天分配5%给渠道
-    function distributionToChannelRewardsAddress() public {
+    //According to the rules, allocate 5% to channels every day - Assign permissions
+    function distributionToChannelRewardsAddress() private onlyRoleAddress {
         require(address(token()) != address(0) , "Release: need set Token Address");
         require(address(getChannelRewardsAddress()) != address(0) , "Release: need set channel rewards Address");
-        // TokenReleaseContract challengContract = TokenReleaseContract(getChannelRewardsAddress());
-        uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
+        uint256 amount = this.getCurrentReleaseTokenAmount(); 
         amount = amount * _channelRewardsScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!!");
-        // token().safeTransferFrom(address(this),address(getChannelRewardsAddress()),amount);//发送到渠道奖励地址
-        token().safeTransfer(getChannelRewardsAddress(), amount);//
+        token().safeTransfer(getChannelRewardsAddress(), amount);
 
         _totalReleased = _totalReleased + amount;
     }
 
-    //按照规则，每天分配10%给预言机奖励
-    function distributionToOracleRewardsAddress() public {
+    //According to the rules, 10% will be allocated to the oracle machine every day - Assign permissions
+    function distributionToOracleRewardsAddress() private onlyRoleAddress {
         require(address(token()) != address(0) , "Release: need set Token Address");
-        require(address(getOracleRewardsAddress()) != address(0) , "Release: need set channel rewards Address");
-        // TokenReleaseContract challengContract = TokenReleaseContract(getOracleRewardsAddress());
-        uint256 amount = this.getCurrentReleaseTokenAmount();// challengContract.getCurrentReleaseTokenAmount();//查询今日释放数量
+        require(address(getOracleRewardsAddress()) != address(0) , "Release: need set oracle rewards Address");
+        uint256 amount = this.getCurrentReleaseTokenAmount();
         amount = amount * _oracleRewardsScale / 100;
         require(tokenBalance() >= amount , "Release: Insufficient total amount available for distribution!!");
-        // token().safeTransferFrom(address(this),address(getOracleRewardsAddress()),amount);//发送到预言机奖励地址
         token().safeTransfer(getOracleRewardsAddress(), amount);//
 
         _totalReleased = _totalReleased + amount;
 
     }
 
-    //分配到指定地址
-    // function  distributionToSpecify(address[] calldata recipients, uint256[] calldata values) public virtual {
-    //     // require(amount > 0, "Release: no tokens to release");
-    //     require(address(_token) != address(0) , "Release: need set Token Address");
-    //     require(recipients.length == values.length,"Please check the data, the news ID and distribution quantity are inconsistent");
-
-    //     uint256 totalAmount = 0;
-
-    //     for (uint256 i = 0; i < recipients.length; i++){
-            
-    //         totalAmount = totalAmount.add(values[i]);
-    //     }
-    //     require(tokenBalance() >= totalAmount , "The number of air drops exceeds the daily release amount");
-
-    //     for (uint256 i = 0; i < recipients.length; i++){
-    //         token().safeTransferFrom(address(this),recipients[i],values[i]);//发送到指定地址
-    //         _totalReleased = _totalReleased + values[i];
-    //     }
-    // }
-
-    //查询每日释放量
+    //Query daily release amount
     function getCurrentReleaseTokenAmount() public returns (uint256){
         require(getReleaseContractAddress() != address(0),"Release: need set release  Address");
         TokenReleaseContract challengContract = TokenReleaseContract(getReleaseContractAddress());
         uint256 amount =  challengContract.getCurrentReleaseTokenAmount();
-        // console.log("the amount is " ,amount);
         return amount;
     }
 }
