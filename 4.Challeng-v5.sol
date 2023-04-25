@@ -805,49 +805,51 @@ contract challenge is Owner{
     }
 
     //设置主题master信息-用于修改合约之后的数据迁移
-    function setMasterData(string  memory  themeId_, uint256    amount_,uint256 endTime,uint256 odds,address masterAddress) public isOwner{
+    function setMasterData(string  memory  themeId_,address masterAddress_, 
+    uint256   reward_,uint256 endTime_,bool isComplete_,bool result_ ,
+    uint256 challengeTotal_,bool hasReceive_,uint256 profit_,uint256 odds_,uint256 count_) public isOwner{
         require(_challengeTheme[themeId_].reward == 0,"The themeId Has been initiated");
-        require(amount_ > 1000000000000000000,"Publisher token amount 1");
-        require(odds >= 2,"The minimum value of magnification is 2");
+        require(reward_ > 1000000000000000000,"Publisher token amount 1");
+        require(odds_ >= 2,"The minimum value of magnification is 2");
 
 
        _challengeTheme[themeId_].idstr = themeId_;
-       _challengeTheme[themeId_].reward = amount_;
-       _challengeTheme[themeId_].originator = masterAddress;
-       _challengeTheme[themeId_].isCompleteTime = endTime;
+       _challengeTheme[themeId_].originator = masterAddress_;
+       _challengeTheme[themeId_].reward = reward_;
+       _challengeTheme[themeId_].isCompleteTime = endTime_;
+       _challengeTheme[themeId_].isComplete = isComplete_;
        _challengeTheme[themeId_].challenge = true;
-       _challengeTheme[themeId_].isComplete = false;
-       _challengeTheme[themeId_].odds = odds;
+       _challengeTheme[themeId_].result = result_;
+       _challengeTheme[themeId_].challengeTotal = challengeTotal_;
+       _challengeTheme[themeId_].hasReceive = hasReceive_;
+       _challengeTheme[themeId_].profit = profit_;
+       _challengeTheme[themeId_].odds = odds_;
+       _challengeTheme[themeId_].count = count_;
+ 
     }
 
     //设置主题challenger信息-用于修改合约之后的数据迁移
-    function setChallengerData(string memory themeId_,uint256 amount_,address challengerAddress) public isOwner{
-        uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
+    function setChallengerData(uint256 amount_,uint256 challengTime_,bool result_, bool challeng_ ,bool challengResult_,bool theme_, uint256 reward_,uint256 times_,string memory themeId_,bool hasReceive,address challengerAddress) public isOwner{
+        // uint256 odds = _challengeTheme[themeId_].odds;//挑战倍率
         address  publisherAddress = _challengeTheme[themeId_].originator;//发布者
  
         require(publisherAddress != challengerAddress,"The initiator cannot challenge his proposition");//发起者不能挑战自己的命题
         //require(_challengeTheme[themeId_].isComplete == false,"The current challenge is over");//当前挑战已经结束了，不能在发起挑战
         //require(_challengeTheme[themeId_].isCompleteTime > block.timestamp,"The current challenge time is over");//挑战时间已经结束，不能在发起挑战
-        require(_challengeTheme[themeId_].challengeTotal.add(amount_) <= _challengeTheme[themeId_].reward.div(odds.sub(1)) ,"The total challenge amount cannot be higher than the maximum available quota");//挑战总额，不能高于最大可用额度
+        // require(_challengeTheme[themeId_].challengeTotal.add(amount_) <= _challengeTheme[themeId_].reward.div(odds.sub(1)) ,"The total challenge amount cannot be higher than the maximum available quota");//挑战总额，不能高于最大可用额度
         require(amount_ >0,"The number of challenges cannot be zero");//挑战金额不能为0
 
-
-
-
-
-        if(_challengerInfo[themeId_][challengerAddress].amount == 0){
-            _challengeTheme[themeId_].count += 1;//记录参与人数
-        }
-
-        
-        _challengerInfo[themeId_][challengerAddress].amount += amount_;//挑战数量
-        _challengerInfo[themeId_][challengerAddress].challengeTime = block.timestamp;//挑战时间
-        _challengerInfo[themeId_][challengerAddress].challeng = false;//挑战内容
-        _challengerInfo[themeId_][challengerAddress].theme = true;//主题内容
-        _challengerInfo[themeId_][challengerAddress].reward +=(amount_.mul(odds));//挑战奖励-挑战内容*倍率
-        _challengerInfo[themeId_][challengerAddress].times += 1;//挑战次数
+        _challengerInfo[themeId_][challengerAddress].amount = amount_;//挑战数量
+        _challengerInfo[themeId_][challengerAddress].challengeTime =challengTime_;//挑战时间
+        _challengerInfo[themeId_][challengerAddress].result = result_;//挑战内容
+        _challengerInfo[themeId_][challengerAddress].challeng = challeng_;//挑战内容
+        _challengerInfo[themeId_][challengerAddress].challengResult = challengResult_;//挑战内容
+        _challengerInfo[themeId_][challengerAddress].hasReceive = hasReceive;//记录，已经领取了奖励
+        _challengerInfo[themeId_][challengerAddress].theme = theme_;//主题内容
+        _challengerInfo[themeId_][challengerAddress].reward= reward_;//挑战奖励
+        _challengerInfo[themeId_][challengerAddress].times = times_;//挑战次数
         _challengerInfo[themeId_][challengerAddress].idstr = themeId_;//挑战Id
-        _challengeTheme[themeId_].challengeTotal += amount_;//记录总挑战额  
+
     }
 
 
